@@ -10,6 +10,7 @@ import IvDripPage from './pages/calculation/iv-drip'
 import BloodTransfusionPage from './pages/calculation/blood-transfusion'
 import KaliumPage from './pages/calculation/kalium'
 import EnteralNutritionPage from './pages/calculation/enteral-nutrition'
+import EcgPage from './pages/calculation/ecg'
 import MainPage from './pages'
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
             <Route path='blood-transfusion' element={<BloodTransfusionPage />} />
             <Route path='kalium' element={<KaliumPage />} />
             <Route path='enteral-nutrition' element={<EnteralNutritionPage />} />
+            <Route path='ecg' element={<EcgPage />} />
           </Route>
         </Routes>
       </section>

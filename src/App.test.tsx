@@ -57,4 +57,14 @@ describe('App routes', () => {
 
     expect(screen.getByRole('heading', { name: 'Энтеральное питание/НЭП' })).toBeTruthy()
   })
+
+  it('renders ECG calculator page by /calculation/ecg route', () => {
+    render(
+      <MemoryRouter initialEntries={['/calculation/ecg']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'ЭКГ' })).toBeTruthy()
+  })
 })

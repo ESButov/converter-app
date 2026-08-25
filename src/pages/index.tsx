@@ -19,8 +19,12 @@ export default function MainPage() {
             to: 'body-surface-area',
         },
         {
-            name: 'Расчет норм ЭКГ',
+            name: 'Расчет норм ЭхоКГ',
             to: 'echo',
+        },
+        {
+            name: 'ЭКГ',
+            to: 'ecg',
         },
         {
             name: 'Расчет энетрального питания / НЭП',
