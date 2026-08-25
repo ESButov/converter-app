@@ -1,0 +1,20 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="settings-title">
+  <title id="settings-title">Settings icon</title>
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <rect x="132" y="132" width="760" height="760" rx="188" stroke="#B9E8E4" stroke-width="26"/>
+    <path d="M512 254V340" stroke="#06384A" stroke-width="58"/>
+    <path d="M512 684V770" stroke="#06384A" stroke-width="58"/>
+    <path d="M254 512H340" stroke="#06384A" stroke-width="58"/>
+    <path d="M684 512H770" stroke="#06384A" stroke-width="58"/>
+    <path d="M330 330L392 392" stroke="#06384A" stroke-width="58"/>
+    <path d="M632 632L694 694" stroke="#06384A" stroke-width="58"/>
+    <path d="M694 330L632 392" stroke="#06384A" stroke-width="58"/>
+    <path d="M392 632L330 694" stroke="#06384A" stroke-width="58"/>
+    <circle cx="512" cy="512" r="172" stroke="#06384A" stroke-width="62"/>
+    <circle cx="512" cy="512" r="72" stroke="#26B7B2" stroke-width="50"/>
+    <path d="M312 392C248 392 218 436 218 494V560" stroke="#26B7B2" stroke-width="38"/>
+    <path d="M218 560C218 642 272 690 346 690" stroke="#26B7B2" stroke-width="38"/>
+    <path d="M276 380C276 336 310 308 348 308C386 308 420 336 420 380" stroke="#26B7B2" stroke-width="38"/>
+    <circle cx="346" cy="690" r="42" stroke="#26B7B2" stroke-width="34"/>
+  </g>
+</svg>

@@ -1,0 +1,18 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="reference-title">
+  <title id="reference-title">Reference guide icon</title>
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <rect x="132" y="132" width="760" height="760" rx="188" stroke="#B9E8E4" stroke-width="26"/>
+    <path d="M512 314C442 264 340 248 264 286V726C340 688 442 704 512 754" stroke="#06384A" stroke-width="56"/>
+    <path d="M512 314C582 264 684 248 760 286V726C684 688 582 704 512 754" stroke="#06384A" stroke-width="56"/>
+    <path d="M512 314V754" stroke="#06384A" stroke-width="42"/>
+    <path d="M390 408H442" stroke="#B9E8E4" stroke-width="34"/>
+    <path d="M346 508H442" stroke="#B9E8E4" stroke-width="34"/>
+    <path d="M346 604H442" stroke="#B9E8E4" stroke-width="34"/>
+    <circle cx="646" cy="398" r="28" stroke="#26B7B2" stroke-width="38"/>
+    <path d="M646 500V626" stroke="#26B7B2" stroke-width="48"/>
+    <path d="M612 500H646" stroke="#26B7B2" stroke-width="48"/>
+    <path d="M704 600V704" stroke="#26B7B2" stroke-width="40"/>
+    <path d="M652 652H756" stroke="#26B7B2" stroke-width="40"/>
+    <path d="M642 714C660 684 690 682 706 708C724 682 754 684 772 714C748 742 718 744 706 728C694 744 666 742 642 714Z" stroke="#26B7B2" stroke-width="30"/>
+  </g>
+</svg>

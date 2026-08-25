@@ -1,0 +1,132 @@
+[
+  {
+    "key": "l-2",
+    "name": "Лидокаин 2%",
+    "allowedAnimals": ["ALL"],
+    "description": {
+      "template": "{{lidocaineDoseRange}}",
+      "variables": {
+        "lidocaineDoseRange": { "resolver": "lidocaineDoseRange" }
+      }
+    },
+    "additionalDescription": {
+      "template": "Перед постановкой ИПС необходимо ввести нагрузочный болюс: {{lidocaineAnimalSpecificDescription}}",
+      "variables": {
+        "lidocaineAnimalSpecificDescription": { "resolver": "lidocaineAnimalSpecificDescription" }
+      }
+    }
+  },
+  {
+    "key": "l-10",
+    "name": "Лидокаин 10%",
+    "allowedAnimals": ["ALL"],
+    "description": {
+      "template": "{{lidocaineDoseRange}}",
+      "variables": {
+        "lidocaineDoseRange": { "resolver": "lidocaineDoseRange" }
+      }
+    },
+    "additionalDescription": {
+      "template": "Перед постановкой ИПС необходимо ввести нагрузочный болюс: {{lidocaineAnimalSpecificDescription}}",
+      "variables": {
+        "lidocaineAnimalSpecificDescription": { "resolver": "lidocaineAnimalSpecificDescription" }
+      }
+    }
+  },
+  {
+    "key": "cer",
+    "name": "Церукал (метоклопрамид)",
+    "allowedAnimals": ["ALL"],
+    "description": "0,05 - 0,2 мг/кг/ч",
+    "additionalDescription": "Церукал в ИПС можно смешивать с лидокаином/золетилом/ДДМ/домитором в одном шприце"
+  },
+  {
+    "key": "domitor",
+    "name": "Домитор (медитин)",
+    "allowedAnimals": ["ALL"],
+    "description": "0.25 - 1 мкг/кг/ч"
+  },
+  {
+    "key": "ddm-01",
+    "name": "Дексмедетомидин 0.1",
+    "allowedAnimals": ["ALL"],
+    "description": "0.2 - 2 мкг/кг/ч"
+  },
+  {
+    "key": "ddm-05",
+    "name": "Дексмедетомидин 0.5",
+    "allowedAnimals": ["ALL"],
+    "description": "0.2 - 2 мкг/кг/ч"
+  },
+  {
+    "key": "vez",
+    "name": "Везотил (телазол/золетил)",
+    "allowedAnimals": ["ALL"],
+    "description": "0.1 - 4 мг/кг/ч",
+    "additionalDescription": "Начальная инфузия:\nдля кошек с 0,1-0,3 мг/кг/ч\nдля собак с 0,3-0,5 мг/кг/ч\nПри тяжелой боли (острый панкреатит, септический перитонит, перелом позвоночника) - 0,5-4 мг/кг/ч"
+  },
+  {
+    "key": "tr",
+    "name": "Трамадол",
+    "allowedAnimals": ["ALL"],
+    "description": "0.1 - 0.3 мг/кг/ч"
+  },
+  {
+    "key": "ad",
+    "name": "Адреналин",
+    "allowedAnimals": ["ALL"],
+    "description": "0.01 - 0.2 мкг/кг/мин",
+    "additionalDescription": "Эпинефрин обладает дозозависимым эффектом:\n0,01–0,05 мкг/кг/мин — преимущественно β₁/β₂-эффекты (инотропный эффект, умеренное увеличение ЧСС, бронходилатация).\n0,05–0,1 мкг/кг/мин — выраженная β₁-стимуляция и начинает проявляться α₁-вазоконстрикция.\n>0,1–0,2 мкг/кг/мин — преобладают α₁-эффекты с выраженной вазоконстрикцией и повышением ОПСС, возрастает риск тахиаритмий и увеличения потребности миокарда в кислороде."
+  },
+  {
+    "key": "nad",
+    "name": "Норадреналин",
+    "allowedAnimals": ["ALL"],
+    "description": "0.05 - 2 мкг/кг/мин",
+    "injectorLock": 24,
+    "speedLock": 1,
+    "additionalDescription": "Калькулятор считает Норадреналин на 24 часа, где шаг в 0,1 мкг/кг/мин равен шагу 1 мл/ч.\nПомните, что Норадреналин начинает работать БЫСТРО.\nЕсли за 2-5 мин АД не поднялось на 10 пунктов - скорость увеличиваем!"
+  },
+  {
+    "key": "dop-05",
+    "name": "Допамин 0.5%",
+    "allowedAnimals": ["ALL"],
+    "description": "4 - 10 мкг/кг/мин",
+    "injectorLock": 20,
+    "speedLock": 4,
+    "additionalDescription": {
+      "template": "{{resultDisplaing}} мл 0.5% Допамина разводится в шприц до 20мл NaCl 0.9%.\nСкорость в мл соответствует скорости в мкг/кг/мин.\nНачинаем с 4 мл/ч, что соответствует 4 мкг/кг/мин.",
+      "variables": {
+        "resultDisplaing": { "resolver": "resultDisplaing" }
+      }
+    }
+  },
+  {
+    "key": "dop-4",
+    "name": "Допамин 4%",
+    "allowedAnimals": ["ALL"],
+    "description": "4 - 10 мкг/кг/мин",
+    "injectorLock": 20,
+    "speedLock": 4,
+    "additionalDescription": {
+      "template": "{{resultDisplaing}} мл 4% Допамина разводится в шприц до 20мл NaCl 0.9%.\nСкорость в мл соответствует скорости в мкг/кг/мин.\nНачинаем с 4 мл/ч, что соответствует 4 мкг/кг/мин.",
+      "variables": {
+        "resultDisplaing": { "resolver": "resultDisplaing" }
+      }
+    }
+  },
+  {
+    "key": "dob",
+    "name": "Добутамин",
+    "allowedAnimals": ["ALL"],
+    "description": "4 - 10 мкг/кг/мин",
+    "injectorLock": 20,
+    "speedLock": 4,
+    "additionalDescription": {
+      "template": "{{resultDisplaing}} мл Добутамина разводится в шприц до 20мл NaCl 0.9%.\nСкорость в мл соответствует скорости в мкг/кг/мин.\nНачинаем с 4 мл/ч, что соответствует 4 мкг/кг/мин.",
+      "variables": {
+        "resultDisplaing": { "resolver": "resultDisplaing" }
+      }
+    }
+  }
+]

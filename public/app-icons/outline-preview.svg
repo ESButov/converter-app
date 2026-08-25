@@ -1,0 +1,61 @@
+<svg width="1200" height="440" viewBox="0 0 1200 440" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="preview-title">
+  <title id="preview-title">Minimal outline icon preview</title>
+  <rect width="1200" height="440" fill="#F7FAFA"/>
+  <g transform="translate(56 48) scale(0.3359375)">
+    <svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none">
+      <g stroke-linecap="round" stroke-linejoin="round">
+        <rect x="132" y="132" width="760" height="760" rx="188" stroke="#B9E8E4" stroke-width="26"/>
+        <path d="M242 500L512 274L782 500" stroke="#06384A" stroke-width="62"/>
+        <path d="M322 482V748H702V482" stroke="#06384A" stroke-width="62"/>
+        <path d="M644 394V308H728V464" stroke="#06384A" stroke-width="56"/>
+        <path d="M512 438V590" stroke="#26B7B2" stroke-width="50"/>
+        <path d="M436 514H588" stroke="#26B7B2" stroke-width="50"/>
+        <path d="M394 704C420 640 470 624 512 676C554 624 604 640 630 704C596 744 556 754 512 722C468 754 428 744 394 704Z" stroke="#26B7B2" stroke-width="38"/>
+        <circle cx="430" cy="612" r="24" stroke="#26B7B2" stroke-width="34"/>
+        <circle cx="492" cy="590" r="24" stroke="#26B7B2" stroke-width="34"/>
+        <circle cx="554" cy="590" r="24" stroke="#26B7B2" stroke-width="34"/>
+        <circle cx="616" cy="612" r="24" stroke="#26B7B2" stroke-width="34"/>
+      </g>
+    </svg>
+  </g>
+  <g transform="translate(428 48) scale(0.3359375)">
+    <svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none">
+      <g stroke-linecap="round" stroke-linejoin="round">
+        <rect x="132" y="132" width="760" height="760" rx="188" stroke="#B9E8E4" stroke-width="26"/>
+        <path d="M512 254V340" stroke="#06384A" stroke-width="58"/>
+        <path d="M512 684V770" stroke="#06384A" stroke-width="58"/>
+        <path d="M254 512H340" stroke="#06384A" stroke-width="58"/>
+        <path d="M684 512H770" stroke="#06384A" stroke-width="58"/>
+        <path d="M330 330L392 392" stroke="#06384A" stroke-width="58"/>
+        <path d="M632 632L694 694" stroke="#06384A" stroke-width="58"/>
+        <path d="M694 330L632 392" stroke="#06384A" stroke-width="58"/>
+        <path d="M392 632L330 694" stroke="#06384A" stroke-width="58"/>
+        <circle cx="512" cy="512" r="172" stroke="#06384A" stroke-width="62"/>
+        <circle cx="512" cy="512" r="72" stroke="#26B7B2" stroke-width="50"/>
+        <path d="M312 392C248 392 218 436 218 494V560" stroke="#26B7B2" stroke-width="38"/>
+        <path d="M218 560C218 642 272 690 346 690" stroke="#26B7B2" stroke-width="38"/>
+        <path d="M276 380C276 336 310 308 348 308C386 308 420 336 420 380" stroke="#26B7B2" stroke-width="38"/>
+        <circle cx="346" cy="690" r="42" stroke="#26B7B2" stroke-width="34"/>
+      </g>
+    </svg>
+  </g>
+  <g transform="translate(800 48) scale(0.3359375)">
+    <svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none">
+      <g stroke-linecap="round" stroke-linejoin="round">
+        <rect x="132" y="132" width="760" height="760" rx="188" stroke="#B9E8E4" stroke-width="26"/>
+        <path d="M512 314C442 264 340 248 264 286V726C340 688 442 704 512 754" stroke="#06384A" stroke-width="56"/>
+        <path d="M512 314C582 264 684 248 760 286V726C684 688 582 704 512 754" stroke="#06384A" stroke-width="56"/>
+        <path d="M512 314V754" stroke="#06384A" stroke-width="42"/>
+        <path d="M390 408H442" stroke="#B9E8E4" stroke-width="34"/>
+        <path d="M346 508H442" stroke="#B9E8E4" stroke-width="34"/>
+        <path d="M346 604H442" stroke="#B9E8E4" stroke-width="34"/>
+        <circle cx="646" cy="398" r="28" stroke="#26B7B2" stroke-width="38"/>
+        <path d="M646 500V626" stroke="#26B7B2" stroke-width="48"/>
+        <path d="M612 500H646" stroke="#26B7B2" stroke-width="48"/>
+        <path d="M704 600V704" stroke="#26B7B2" stroke-width="40"/>
+        <path d="M652 652H756" stroke="#26B7B2" stroke-width="40"/>
+        <path d="M642 714C660 684 690 682 706 708C724 682 754 684 772 714C748 742 718 744 706 728C694 744 666 742 642 714Z" stroke="#26B7B2" stroke-width="30"/>
+      </g>
+    </svg>
+  </g>
+</svg>

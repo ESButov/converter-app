@@ -1,0 +1,16 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="home-title">
+  <title id="home-title">Home page icon</title>
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <rect x="132" y="132" width="760" height="760" rx="188" stroke="#B9E8E4" stroke-width="26"/>
+    <path d="M242 500L512 274L782 500" stroke="#06384A" stroke-width="62"/>
+    <path d="M322 482V748H702V482" stroke="#06384A" stroke-width="62"/>
+    <path d="M644 394V308H728V464" stroke="#06384A" stroke-width="56"/>
+    <path d="M512 438V590" stroke="#26B7B2" stroke-width="50"/>
+    <path d="M436 514H588" stroke="#26B7B2" stroke-width="50"/>
+    <path d="M394 704C420 640 470 624 512 676C554 624 604 640 630 704C596 744 556 754 512 722C468 754 428 744 394 704Z" stroke="#26B7B2" stroke-width="38"/>
+    <circle cx="430" cy="612" r="24" stroke="#26B7B2" stroke-width="34"/>
+    <circle cx="492" cy="590" r="24" stroke="#26B7B2" stroke-width="34"/>
+    <circle cx="554" cy="590" r="24" stroke="#26B7B2" stroke-width="34"/>
+    <circle cx="616" cy="612" r="24" stroke="#26B7B2" stroke-width="34"/>
+  </g>
+</svg>
