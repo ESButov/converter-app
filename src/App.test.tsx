@@ -67,4 +67,54 @@ describe('App routes', () => {
 
     expect(screen.getByRole('heading', { name: 'ЭКГ' })).toBeTruthy()
   })
+
+  it('renders FLK calculator page by /calculation/flk route', () => {
+    render(
+      <MemoryRouter initialEntries={['/calculation/flk']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Расчет FLK' })).toBeTruthy()
+  })
+
+  it('renders mixed infusions calculator page by /calculation/mixed-infusions route', () => {
+    render(
+      <MemoryRouter initialEntries={['/calculation/mixed-infusions']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Расчеты смешанных инфузий' })).toBeTruthy()
+  })
+
+  it('renders PEP calculator page by /calculation/pep route', () => {
+    render(
+      <MemoryRouter initialEntries={['/calculation/pep']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Расчет ПЭП' })).toBeTruthy()
+  })
+
+  it('renders sodium correction calculator page by /calculation/sodium-correction route', () => {
+    render(
+      <MemoryRouter initialEntries={['/calculation/sodium-correction']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Коррекция натрия' })).toBeTruthy()
+  })
+
+  it('renders glucose-insulin calculator page by /calculation/glucose-insulin route', () => {
+    render(
+      <MemoryRouter initialEntries={['/calculation/glucose-insulin']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Расчет глюкозо-инсулиновой смеси' })).toBeTruthy()
+  })
 })

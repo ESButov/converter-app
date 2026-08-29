@@ -11,6 +11,11 @@ import BloodTransfusionPage from './pages/calculation/blood-transfusion'
 import KaliumPage from './pages/calculation/kalium'
 import EnteralNutritionPage from './pages/calculation/enteral-nutrition'
 import EcgPage from './pages/calculation/ecg'
+import FlkPage from './pages/calculation/flk'
+import MixedInfusionsPage from './pages/calculation/mixed-infusions'
+import PepPage from './pages/calculation/pep'
+import SodiumCorrectionPage from './pages/calculation/sodium-correction'
+import GlucoseInsulinPage from './pages/calculation/glucose-insulin'
 import MainPage from './pages'
 
 function App() {
@@ -31,6 +36,11 @@ function App() {
             <Route path='kalium' element={<KaliumPage />} />
             <Route path='enteral-nutrition' element={<EnteralNutritionPage />} />
             <Route path='ecg' element={<EcgPage />} />
+            <Route path='flk' element={<FlkPage />} />
+            <Route path='mixed-infusions' element={<MixedInfusionsPage />} />
+            <Route path='pep' element={<PepPage />} />
+            <Route path='sodium-correction' element={<SodiumCorrectionPage />} />
+            <Route path='glucose-insulin' element={<GlucoseInsulinPage />} />
           </Route>
         </Routes>
       </section>

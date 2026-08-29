@@ -52,7 +52,7 @@ describe('BloodTransfusionPage', () => {
     await user.type(screen.getByLabelText('Целевой HCT/PCV, %'), '25')
     await user.type(screen.getByLabelText('HCT/PCV продукта / донора, %'), '40')
 
-    expect(screen.getByText('Для цельной крови расчет идет через HCT/PCV продукта / донора.')).toBeTruthy()
+    expect(screen.getByLabelText('HCT/PCV продукта / донора, %')).toBeTruthy()
     expect(screen.queryByLabelText('Планируемый объем, мл')).toBeNull()
     expect(screen.queryByLabelText('Время трансфузии, часы')).toBeNull()
     expect(screen.queryByLabelText('Скорость трансфузии, мл/ч')).toBeNull()
@@ -74,7 +74,7 @@ describe('BloodTransfusionPage', () => {
     await user.type(screen.getByLabelText('Целевой HCT/PCV, %'), '25')
     await user.type(screen.getByLabelText('HCT/PCV продукта, %'), '40')
 
-    expect(screen.getByText('Для эритроцитарной массы расчет идет через HCT/PCV продукта.')).toBeTruthy()
+    expect(screen.getByLabelText('HCT/PCV продукта, %')).toBeTruthy()
     expect(screen.queryByLabelText('HCT/PCV продукта / донора, %')).toBeNull()
     expect(screen.queryByLabelText('Время трансфузии, часы')).toBeNull()
     expect(screen.queryByLabelText('Скорость трансфузии, мл/ч')).toBeNull()

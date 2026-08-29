@@ -27,6 +27,26 @@ export default function MainPage() {
             to: 'ecg',
         },
         {
+            name: 'Расчет FLK',
+            to: 'flk',
+        },
+        {
+            name: 'Расчеты смешанных инфузий',
+            to: 'mixed-infusions',
+        },
+        {
+            name: 'Расчет ПЭП',
+            to: 'pep',
+        },
+        {
+            name: 'Коррекция натрия',
+            to: 'sodium-correction',
+        },
+        {
+            name: 'Расчет глюкозо-инсулиновой смеси',
+            to: 'glucose-insulin',
+        },
+        {
             name: 'Расчет энетрального питания / НЭП',
             to: 'enteral-nutrition',
         },

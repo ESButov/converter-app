@@ -13,7 +13,6 @@ import {
   type TransfusionSpecies,
 } from '../../domain/bloodTransfusion'
 import {
-  CalculatorDescription,
   CalculatorError,
   CalculatorForm,
   CalculatorNumberField,
@@ -43,14 +42,10 @@ const names = {
     targetPcv: 'Целевой HCT/PCV, %',
     weightKg: 'Масса, кг',
   },
-  descriptions: {
-    packedRbc: 'Для эритроцитарной массы расчет идет через HCT/PCV продукта.',
-    wholeBlood: 'Для цельной крови расчет идет через HCT/PCV продукта / донора.',
-  },
   errors: {
     targetPcv: 'Целевой HCT/PCV должен быть выше текущего.',
   },
-  safety: 'Перед трансфузией: типирование крови, кросс-матч при возможности, отдельная линия с фильтром; не смешивать с кальций/глюкоза-содержащими растворами.',
+  safety: 'Перед трансфузией необходимо: определение группы крови, проведение перекрестной пробы, отдельная линия с фильтром; не смешивать кровь с кальций/глюкоза-содержащими растворами.',
   componentHelp: {
     title: 'Практическое использование компонентов крови',
     columns: {
@@ -282,9 +277,6 @@ export default function BloodTransfusionPage() {
   const productPcvLabel = component === 'wholeBlood'
     ? names.labels.wholeBloodProductPcv
     : names.labels.packedRbcProductPcv
-  const redCellDescription = component === 'wholeBlood'
-    ? names.descriptions.wholeBlood
-    : names.descriptions.packedRbc
 
   const numericValues = useMemo(() => ({
     currentPcv: readNumberInput(inputs.currentPcv),
@@ -545,7 +537,6 @@ ${requirements}`
 
       {isRedCellComponent(component) &&
         <>
-          <CalculatorDescription>{redCellDescription}</CalculatorDescription>
           <CalculatorNumberField
             label={names.labels.currentPcv}
             min="0"
