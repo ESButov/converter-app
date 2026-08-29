@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
+import { useMemo, useState, type ChangeEvent } from 'react'
 import {
   calculateSodiumCorrection,
   formatSodiumNumber,
@@ -115,6 +115,15 @@ const formatSignedNumber = (value: number) => (
   `${value > 0 ? '+' : ''}${formatSodiumNumber(value, 2)}`
 )
 
+const getValidFluidId = (
+  fluidId: SodiumFluidId | '',
+  compatibleFluids: readonly { id: SodiumFluidId }[],
+) => (
+  fluidId === '' || compatibleFluids.some(({ id }) => id === fluidId)
+    ? fluidId
+    : ''
+)
+
 export default function SodiumCorrectionPage() {
   const [chronicity, setChronicity] = useState<SodiumChronicity>('chronic')
   const [fluidId, setFluidId] = useState<SodiumFluidId | ''>('')
@@ -143,11 +152,7 @@ export default function SodiumCorrectionPage() {
     value: fluid.id,
   })), [compatibleFluids])
 
-  useEffect(() => {
-    setFluidId((prev) => (
-      prev === '' || compatibleFluids.some(({ id }) => id === prev) ? prev : ''
-    ))
-  }, [compatibleFluids])
+  const selectedFluidId = getValidFluidId(fluidId, compatibleFluids)
 
   const result = useMemo(() => {
     if (species === undefined) {
@@ -157,9 +162,9 @@ export default function SodiumCorrectionPage() {
     return calculateSodiumCorrection({
       ...numericValues,
       chronicity,
-      fluidId: fluidId === '' ? undefined : fluidId,
+      fluidId: selectedFluidId === '' ? undefined : selectedFluidId,
     })
-  }, [chronicity, fluidId, numericValues, species])
+  }, [chronicity, numericValues, selectedFluidId, species])
 
   const handleNumberChange = (
     e: ChangeEvent<HTMLInputElement>,
@@ -171,10 +176,22 @@ export default function SodiumCorrectionPage() {
       return
     }
 
-    setInputs((prev) => ({
-      ...prev,
+    const nextInputs = {
+      ...inputs,
       [key]: e.target.value,
-    }))
+    }
+
+    setInputs(nextInputs)
+
+    if (key === 'currentSodiumMmolL' || key === 'targetSodiumMmolL') {
+      setFluidId((prev) => getValidFluidId(
+        prev,
+        getCompatibleSodiumFluids(
+          readNumberInput(nextInputs.currentSodiumMmolL),
+          readNumberInput(nextInputs.targetSodiumMmolL),
+        ),
+      ))
+    }
   }
 
   const handleSpeciesChange = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -276,7 +293,7 @@ ${result.sodiumDeficitMmol === undefined ? '' : `Дефицит натрия: ${
         label={names.labels.fluid}
         options={fluidOptions}
         placeholder={direction === undefined ? names.placeholders.fluid : '-'}
-        value={fluidId}
+        value={selectedFluidId}
         onChange={handleFluidChange}
       />
 
