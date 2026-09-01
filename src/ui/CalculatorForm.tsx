@@ -121,6 +121,9 @@ type CalculatorFieldProps = {
 type CalculatorNumberFieldProps = CalculatorFieldProps &
   Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>
 
+type CalculatorDateFieldProps = CalculatorFieldProps &
+  Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>
+
 type CalculatorSelectOption = {
   id?: string
   label: string
@@ -166,6 +169,19 @@ function CalculatorNumberField({ label, ...inputProps }: CalculatorNumberFieldPr
         {...inputProps}
         style={styles.input}
         type="number"
+      />
+    </label>
+  )
+}
+
+function CalculatorDateField({ label, ...inputProps }: CalculatorDateFieldProps) {
+  return (
+    <label style={styles.label}>
+      {label}
+      <input
+        {...inputProps}
+        style={styles.input}
+        type="date"
       />
     </label>
   )
@@ -253,6 +269,7 @@ function CalculatorResult({
 }
 
 export {
+  CalculatorDateField,
   CalculatorDescription,
   CalculatorError,
   CalculatorForm,

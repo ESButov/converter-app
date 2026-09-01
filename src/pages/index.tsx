@@ -47,6 +47,22 @@ export default function MainPage() {
             to: 'glucose-insulin',
         },
         {
+            name: 'Конвертер едениц измерения',
+            to: 'convert',
+        },
+        {
+            name: 'Калькулятор ПДР',
+            to: 'pdr',
+        },
+        {
+            name: 'Калькулятор расчета инфузионной терапии',
+            to: 'ipscalc',
+        },
+        {
+            name: 'Расчет препаратов для СЛР',
+            to: 'clr',
+        },
+        {
             name: 'Расчет энетрального питания / НЭП',
             to: 'enteral-nutrition',
         },
@@ -66,9 +82,16 @@ export default function MainPage() {
             name: 'Протокол липидного спасения',
             to: 'lipid-save'
         },
-    ] as Array<{name?: string, to: string}>
+        {
+            name: 'Токсикология',
+            to: 'reference/toxic',
+            isAbsolutePath: true,
+        },
+    ] as Array<{name?: string, to: string, isAbsolutePath?: boolean}>
     const calcDomain = 'calculation';
-    const formatURL = (to: string): string => `${calcDomain}/${to}` 
+    const formatURL = (route: {to: string, isAbsolutePath?: boolean}): string => (
+        route.isAbsolutePath ? route.to : `${calcDomain}/${route.to}`
+    )
     return (
         <>
             <h1>Тестовый макет вет калькуляторов</h1>
@@ -77,7 +100,7 @@ export default function MainPage() {
                     <NavLink
                         key={route.to}
                         className="calc-category"
-                        to={formatURL(route.to)}
+                        to={formatURL(route)}
                     >
                         {route.name || route.to}
                     </NavLink>

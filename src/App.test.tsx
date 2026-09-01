@@ -117,4 +117,54 @@ describe('App routes', () => {
 
     expect(screen.getByRole('heading', { name: 'Расчет глюкозо-инсулиновой смеси' })).toBeTruthy()
   })
+
+  it('renders unit converter page by /calculation/convert route', () => {
+    render(
+      <MemoryRouter initialEntries={['/calculation/convert']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Конвертер едениц измерения' })).toBeTruthy()
+  })
+
+  it('renders PDR calculator page by /calculation/pdr route', () => {
+    render(
+      <MemoryRouter initialEntries={['/calculation/pdr']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Калькулятор ПДР' })).toBeTruthy()
+  })
+
+  it('renders infusion therapy calculator page by /calculation/ipscalc route', () => {
+    render(
+      <MemoryRouter initialEntries={['/calculation/ipscalc']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Калькулятор расчета инфузионной терапии' })).toBeTruthy()
+  })
+
+  it('renders CPR drugs calculator page by /calculation/clr route', () => {
+    render(
+      <MemoryRouter initialEntries={['/calculation/clr']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Расчет препаратов для СЛР' })).toBeTruthy()
+  })
+
+  it('renders toxicology reference page by /reference/toxic route', () => {
+    render(
+      <MemoryRouter initialEntries={['/reference/toxic']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Токсикология' })).toBeTruthy()
+  })
 })

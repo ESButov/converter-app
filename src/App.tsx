@@ -16,6 +16,11 @@ import MixedInfusionsPage from './pages/calculation/mixed-infusions'
 import PepPage from './pages/calculation/pep'
 import SodiumCorrectionPage from './pages/calculation/sodium-correction'
 import GlucoseInsulinPage from './pages/calculation/glucose-insulin'
+import ConvertPage from './pages/calculation/convert'
+import PdrPage from './pages/calculation/pdr'
+import IpscalcPage from './pages/calculation/ipscalc'
+import ClrPage from './pages/calculation/clr'
+import ToxicologyReferencePage from './pages/reference/toxic'
 import MainPage from './pages'
 
 function App() {
@@ -41,6 +46,13 @@ function App() {
             <Route path='pep' element={<PepPage />} />
             <Route path='sodium-correction' element={<SodiumCorrectionPage />} />
             <Route path='glucose-insulin' element={<GlucoseInsulinPage />} />
+            <Route path='convert' element={<ConvertPage />} />
+            <Route path='pdr' element={<PdrPage />} />
+            <Route path='ipscalc' element={<IpscalcPage />} />
+            <Route path='clr' element={<ClrPage />} />
+          </Route>
+          <Route path="reference">
+            <Route path='toxic' element={<ToxicologyReferencePage />} />
           </Route>
         </Routes>
       </section>
