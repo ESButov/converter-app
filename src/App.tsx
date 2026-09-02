@@ -22,6 +22,7 @@ import IpscalcPage from './pages/calculation/ipscalc'
 import ClrPage from './pages/calculation/clr'
 import ToxicologyReferencePage from './pages/reference/toxic'
 import MainPage from './pages'
+import CalculationLayout from './layouts/CalculationLayout'
 
 function App() {
   return (
@@ -29,7 +30,7 @@ function App() {
       <section id="center">
         <Routes>
           <Route index element={<MainPage />} />
-          <Route path="calculation">
+          <Route path="calculation" element={<CalculationLayout />}>
             <Route path='ips' element={<IpsCalculationPage />} />
             <Route path='albumin' element={<AlbuminPage />} />
             <Route path='lipid-save' element={<LipidSavePage />} />

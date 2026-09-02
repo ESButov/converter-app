@@ -164,7 +164,7 @@ function CalculatorForm({ title, children }: CalculatorFormProps) {
 function CalculatorNumberField({ label, ...inputProps }: CalculatorNumberFieldProps) {
   return (
     <label style={styles.label}>
-      {label}
+      <span style={{display: 'inline-flex', flex: 1, alignItems: 'end'}}>{label}</span>
       <input
         {...inputProps}
         style={styles.input}
@@ -177,7 +177,7 @@ function CalculatorNumberField({ label, ...inputProps }: CalculatorNumberFieldPr
 function CalculatorDateField({ label, ...inputProps }: CalculatorDateFieldProps) {
   return (
     <label style={styles.label}>
-      {label}
+      <span style={{display: 'inline-flex', flex: 1, alignItems: 'end'}}>{label}</span>
       <input
         {...inputProps}
         style={styles.input}
@@ -195,7 +195,7 @@ function CalculatorSelectField({
 }: CalculatorSelectFieldProps) {
   return (
     <label style={styles.label}>
-      {label}
+      <span style={{display: 'inline-flex', flex: 1, alignItems: 'end'}}>{label}</span>
       <select
         {...selectProps}
         style={styles.input}
