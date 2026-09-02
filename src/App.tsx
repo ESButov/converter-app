@@ -1,7 +1,6 @@
 import './App.css'
 import { Routes, Route } from 'react-router-dom'
 import IpsCalculationPage from './pages/calculation/ips'
-import AlbuminPage from './pages/calculation/albumin'
 import LipidSavePage from './pages/calculation/lipid-save'
 import BodySurfaceAreaPage from './pages/calculation/body-surface-area'
 import GlucosePage from './pages/calculation/glucose'
@@ -14,6 +13,7 @@ import EcgPage from './pages/calculation/ecg'
 import FlkPage from './pages/calculation/flk'
 import MixedInfusionsPage from './pages/calculation/mixed-infusions'
 import PepPage from './pages/calculation/pep'
+import ElectrolytesPage from './pages/calculation/electrolytes'
 import SodiumCorrectionPage from './pages/calculation/sodium-correction'
 import GlucoseInsulinPage from './pages/calculation/glucose-insulin'
 import ConvertPage from './pages/calculation/convert'
@@ -32,7 +32,6 @@ function App() {
           <Route index element={<MainPage />} />
           <Route path="calculation" element={<CalculationLayout />}>
             <Route path='ips' element={<IpsCalculationPage />} />
-            <Route path='albumin' element={<AlbuminPage />} />
             <Route path='lipid-save' element={<LipidSavePage />} />
             <Route path='body-surface-area' element={<BodySurfaceAreaPage />} />
             <Route path='glucose' element={<GlucosePage />} />
@@ -45,6 +44,7 @@ function App() {
             <Route path='flk' element={<FlkPage />} />
             <Route path='mixed-infusions' element={<MixedInfusionsPage />} />
             <Route path='pep' element={<PepPage />} />
+            <Route path='electrolytes' element={<ElectrolytesPage />} />
             <Route path='sodium-correction' element={<SodiumCorrectionPage />} />
             <Route path='glucose-insulin' element={<GlucoseInsulinPage />} />
             <Route path='convert' element={<ConvertPage />} />

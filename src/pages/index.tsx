@@ -7,10 +7,6 @@ export default function MainPage() {
             to: 'ips'
         },
         {
-            name: 'Рассчет Альбумина',
-            to: 'albumin'
-        },
-        {
             name: 'Расчет крови и компонентов крови',
             to: 'blood-transfusion',
         },
@@ -39,12 +35,8 @@ export default function MainPage() {
             to: 'pep',
         },
         {
-            name: 'Коррекция натрия',
-            to: 'sodium-correction',
-        },
-        {
-            name: 'Расчет глюкозо-инсулиновой смеси',
-            to: 'glucose-insulin',
+            name: 'Корректировка электролитов',
+            to: 'electrolytes',
         },
         {
             name: 'Конвертер едениц измерения',
@@ -73,10 +65,6 @@ export default function MainPage() {
         {
             name: 'Расчет капельного введения',
             to: 'iv-drip',
-        },
-        {
-            name: 'Расчет восполнения калия',
-            to: 'kalium',
         },
         {
             name: 'Протокол липидного спасения',

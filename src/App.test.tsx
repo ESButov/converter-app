@@ -98,6 +98,16 @@ describe('App routes', () => {
     expect(screen.getByRole('heading', { name: 'Расчет ПЭП' })).toBeTruthy()
   })
 
+  it('renders electrolytes calculator page by /calculation/electrolytes route', () => {
+    render(
+      <MemoryRouter initialEntries={['/calculation/electrolytes']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Корректировка электролитов' })).toBeTruthy()
+  })
+
   it('renders sodium correction calculator page by /calculation/sodium-correction route', () => {
     render(
       <MemoryRouter initialEntries={['/calculation/sodium-correction']}>
@@ -166,5 +176,29 @@ describe('App routes', () => {
     )
 
     expect(screen.getByRole('heading', { name: 'Токсикология' })).toBeTruthy()
+  })
+
+  it('shows unified electrolytes calculator on the main page instead of old electrolyte calculators', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('link', { name: 'Корректировка электролитов' })).toBeTruthy()
+    expect(screen.queryByRole('link', { name: 'Коррекция натрия' })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Расчет глюкозо-инсулиновой смеси' })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Расчет восполнения калия' })).toBeNull()
+  })
+
+  it('hides standalone albumin calculator from the main page', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('link', { name: 'Расчет крови и компонентов крови' })).toBeTruthy()
+    expect(screen.queryByRole('link', { name: 'Рассчет Альбумина' })).toBeNull()
   })
 })

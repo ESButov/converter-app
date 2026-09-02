@@ -161,4 +161,27 @@ describe('BloodTransfusionPage', () => {
     expect(screen.getByText(/Ориентир: 10-12 мл\/кг/)).toBeTruthy()
     expect(screen.queryByText(/не более 60 мл/)).toBeNull()
   })
+
+  it('calculates albumin replacement from the blood component selector', async () => {
+    const user = userEvent.setup()
+
+    render(<BloodTransfusionPage />)
+
+    await user.selectOptions(screen.getByLabelText('Вид животного'), 'dog')
+    await user.type(screen.getByLabelText('Масса, кг'), '10')
+    await user.selectOptions(screen.getByLabelText('Компонент крови'), 'albumin')
+    await user.type(screen.getByLabelText('Альбумин крови, г/л'), '20')
+    await user.type(screen.getByLabelText('Желаемый альбумин, г/л'), '25')
+
+    expect(screen.queryByLabelText('Текущий HCT/PCV, %')).toBeNull()
+    expect(screen.getByText(/Компонент: Альбумин/)).toBeTruthy()
+    expect(screen.getByText(/Объем 20% альбумина: 75 мл/)).toBeTruthy()
+    expect(screen.getByText(/Скорость для 20% альбумина: 6.25 мл\/ч/)).toBeTruthy()
+    expect(screen.getByText(/добавить 75 мл/)).toBeTruthy()
+    expect(screen.getByText(/Скорость разведенного раствора 20% альбумина: 12.5 мл\/ч/)).toBeTruthy()
+    expect(screen.getByText(/Объем 10% альбумина: 150 мл/)).toBeTruthy()
+    expect(screen.getByText(/Скорость для 10% альбумина: 12.5 мл\/ч/)).toBeTruthy()
+    expect(screen.getByText('Расчет проводится на 12 часов ИПС.')).toBeTruthy()
+    expect(screen.queryByText(/Перед трансфузией необходимо/)).toBeNull()
+  })
 })

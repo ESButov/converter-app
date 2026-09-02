@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  calculateAlbuminReplacement,
   calculateDonorBloodCollection,
   calculatePlasmaTransfusion,
   calculatePlateletTransfusion,
@@ -100,6 +101,23 @@ describe('bloodTransfusion', () => {
         min: 100,
         max: 120,
       },
+    })
+  })
+
+  it('calculates albumin replacement volume and speed', () => {
+    expect(calculateAlbuminReplacement({
+      currentAlbuminGL: 20,
+      targetAlbuminGL: 25,
+      weightKg: 10,
+    })).toEqual({
+      albuminDeltaGL: 5,
+      dilutionVolume20PercentMl: 75,
+      infusionTimeHours: 12,
+      speed10PercentMlHour: 12.5,
+      speed20PercentDilutedMlHour: 12.5,
+      speed20PercentMlHour: 6.25,
+      volume10PercentMl: 150,
+      volume20PercentMl: 75,
     })
   })
 

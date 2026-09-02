@@ -3,6 +3,7 @@ export type BloodComponent =
   | 'wholeBlood'
   | 'packedRbc'
   | 'plasma'
+  | 'albumin'
   | 'platelets'
   | 'donorCollection'
 
@@ -48,6 +49,23 @@ export type DonorBloodCollectionResult = {
   volumeMl: DoseRange
 }
 
+export type AlbuminReplacementInput = {
+  currentAlbuminGL?: number
+  targetAlbuminGL?: number
+  weightKg?: number
+}
+
+export type AlbuminReplacementResult = {
+  albuminDeltaGL: number
+  dilutionVolume20PercentMl: number
+  infusionTimeHours: number
+  speed10PercentMlHour: number
+  speed20PercentDilutedMlHour: number
+  speed20PercentMlHour: number
+  volume10PercentMl: number
+  volume20PercentMl: number
+}
+
 type DonorBloodCollectionGuideline = {
   doseMlKg: DoseRange
   recommendedWeightKg: number
@@ -59,6 +77,7 @@ export const bloodComponentKeys = [
   'wholeBlood',
   'packedRbc',
   'plasma',
+  'albumin',
   'platelets',
   'donorCollection',
 ] as const satisfies readonly BloodComponent[]
@@ -213,6 +232,37 @@ export const calculateDonorBloodCollection = (
       min: round(weightKg * guideline.doseMlKg.min),
       max: round(weightKg * guideline.doseMlKg.max),
     },
+  }
+}
+
+export const calculateAlbuminReplacement = ({
+  currentAlbuminGL,
+  targetAlbuminGL,
+  weightKg,
+}: AlbuminReplacementInput): AlbuminReplacementResult | undefined => {
+  if (
+    !hasPositiveNumber(weightKg) ||
+    !hasNonNegativeNumber(currentAlbuminGL) ||
+    !hasPositiveNumber(targetAlbuminGL) ||
+    targetAlbuminGL <= currentAlbuminGL
+  ) {
+    return undefined
+  }
+
+  const albuminDeltaGL = targetAlbuminGL - currentAlbuminGL
+  const volume20PercentMl = 5 * albuminDeltaGL * 0.3 * weightKg
+  const volume10PercentMl = 10 * albuminDeltaGL * 0.3 * weightKg
+  const infusionTimeHours = 12
+
+  return {
+    albuminDeltaGL: round(albuminDeltaGL),
+    dilutionVolume20PercentMl: round(volume20PercentMl),
+    infusionTimeHours,
+    speed10PercentMlHour: round(volume10PercentMl / infusionTimeHours, 2),
+    speed20PercentDilutedMlHour: round((volume20PercentMl * 2) / infusionTimeHours, 2),
+    speed20PercentMlHour: round(volume20PercentMl / infusionTimeHours, 2),
+    volume10PercentMl: round(volume10PercentMl),
+    volume20PercentMl: round(volume20PercentMl),
   }
 }
 

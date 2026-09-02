@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties } from 'react'
 import {
   bloodComponentKeys,
+  calculateAlbuminReplacement,
   calculateDonorBloodCollection,
   calculatePlasmaTransfusion,
   calculatePlateletTransfusion,
@@ -22,9 +23,11 @@ import {
 } from '../../ui/CalculatorForm'
 
 type NumberFieldKey =
+  | 'currentAlbuminGL'
   | 'currentPcv'
   | 'plannedVolumeMl'
   | 'productPcv'
+  | 'targetAlbuminGL'
   | 'targetPcv'
   | 'weightKg'
 
@@ -34,17 +37,21 @@ const names = {
   title: 'Расчет крови и компонентов крови',
   labels: {
     component: 'Компонент крови',
+    currentAlbuminGL: 'Альбумин крови, г/л',
     currentPcv: 'Текущий HCT/PCV, %',
     plannedVolumeMl: 'Планируемый объем, мл',
     packedRbcProductPcv: 'HCT/PCV продукта, %',
     wholeBloodProductPcv: 'HCT/PCV продукта / донора, %',
     species: 'Вид животного',
+    targetAlbuminGL: 'Желаемый альбумин, г/л',
     targetPcv: 'Целевой HCT/PCV, %',
     weightKg: 'Масса, кг',
   },
   errors: {
+    targetAlbuminGL: 'Желаемый альбумин должен быть выше текущего.',
     targetPcv: 'Целевой HCT/PCV должен быть выше текущего.',
   },
+  albuminNote: 'Расчет проводится на 12 часов ИПС.',
   safety: 'Перед трансфузией необходимо: определение группы крови, проведение перекрестной пробы, отдельная линия с фильтром; не смешивать кровь с кальций/глюкоза-содержащими растворами.',
   componentHelp: {
     title: 'Практическое использование компонентов крови',
@@ -66,6 +73,7 @@ const componentLabels: Record<BloodComponent, string> = {
   wholeBlood: 'Цельная кровь',
   packedRbc: 'Эритроцитарная масса / pRBC',
   plasma: 'Плазма / FFP',
+  albumin: 'Альбумин',
   platelets: 'Тромбоцитарный компонент',
   donorCollection: 'Забор крови у донора',
 }
@@ -111,7 +119,7 @@ const componentUsageRows = [
     indication: 'Гипоальбуминемия',
     wholeBlood: '-',
     packedRbc: '-',
-    plasma: '++',
+    plasma: '++ / альбумин +++',
   },
 ] as const
 
@@ -131,9 +139,11 @@ const donorRequirementRows: Record<TransfusionSpecies, readonly string[]> = {
 }
 
 const numberInputDefaults: NumberInputs = {
+  currentAlbuminGL: '',
   currentPcv: '',
   plannedVolumeMl: '',
   productPcv: '',
+  targetAlbuminGL: '',
   targetPcv: '',
   weightKg: '',
 }
@@ -175,6 +185,14 @@ const formatRange = (range: DoseRange, unit: string) => (
     ? `${formatTransfusionNumber(range.max)} ${unit}`
     : `${formatTransfusionNumber(range.min)}-${formatTransfusionNumber(range.max)} ${unit}`
 )
+
+const formatAlbuminNumber = (value: number, digits = 2) => {
+  const fixedValue = value.toFixed(digits)
+
+  return fixedValue.includes('.')
+    ? fixedValue.replace(/\.?0+$/, '')
+    : fixedValue
+}
 
 const componentHelpStyles = {
   field: {
@@ -279,9 +297,11 @@ export default function BloodTransfusionPage() {
     : names.labels.packedRbcProductPcv
 
   const numericValues = useMemo(() => ({
+    currentAlbuminGL: readNumberInput(inputs.currentAlbuminGL),
     currentPcv: readNumberInput(inputs.currentPcv),
     plannedVolumeMl: readNumberInput(inputs.plannedVolumeMl),
     productPcv: readNumberInput(inputs.productPcv),
+    targetAlbuminGL: readNumberInput(inputs.targetAlbuminGL),
     targetPcv: readNumberInput(inputs.targetPcv),
     weightKg: readNumberInput(inputs.weightKg),
   }), [inputs])
@@ -318,6 +338,21 @@ export default function BloodTransfusionPage() {
       ? calculateDonorBloodCollection(species, numericValues.weightKg)
       : undefined
   ), [component, numericValues.weightKg, species])
+
+  const albuminResult = useMemo(() => (
+    component === 'albumin'
+      ? calculateAlbuminReplacement({
+        currentAlbuminGL: numericValues.currentAlbuminGL,
+        targetAlbuminGL: numericValues.targetAlbuminGL,
+        weightKg: numericValues.weightKg,
+      })
+      : undefined
+  ), [
+    component,
+    numericValues.currentAlbuminGL,
+    numericValues.targetAlbuminGL,
+    numericValues.weightKg,
+  ])
 
   useEffect(() => {
     if (!isComponentHelpOpen) {
@@ -379,6 +414,20 @@ export default function BloodTransfusionPage() {
       : undefined
   }, [component, numericValues.currentPcv, numericValues.targetPcv])
 
+  const albuminError = useMemo(() => {
+    if (
+      component !== 'albumin' ||
+      !hasNonNegativeNumber(numericValues.currentAlbuminGL) ||
+      !hasPositiveNumber(numericValues.targetAlbuminGL)
+    ) {
+      return undefined
+    }
+
+    return numericValues.targetAlbuminGL <= numericValues.currentAlbuminGL
+      ? names.errors.targetAlbuminGL
+      : undefined
+  }, [component, numericValues.currentAlbuminGL, numericValues.targetAlbuminGL])
+
   const resultText = useMemo(() => {
     if (species === undefined || !hasPositiveNumber(numericValues.weightKg)) {
       return undefined
@@ -396,6 +445,19 @@ export default function BloodTransfusionPage() {
 Объем на кг: ${formatTransfusionNumber(redCellResult.volumeMlKg)} мл/кг
 Ожидаемый прирост HCT/PCV: ${formatTransfusionNumber(redCellResult.pcvDelta)}%
 Ожидаемый HCT/PCV после трансфузии: ${formatTransfusionNumber(redCellResult.expectedPcv)}%${plannedText}`
+    }
+
+    if (albuminResult !== undefined) {
+      return `Компонент: ${componentLabels.albumin}
+Дефицит до желаемого уровня: ${formatTransfusionNumber(albuminResult.albuminDeltaGL)} г/л
+Объем 20% альбумина: ${formatTransfusionNumber(albuminResult.volume20PercentMl)} мл
+Скорость для 20% альбумина: ${formatAlbuminNumber(albuminResult.speed20PercentMlHour)} мл/ч
+При введении через периферический венозный катетер 20% альбумин развести равным объемом 0.9% раствора натрия хлорида: добавить ${formatTransfusionNumber(albuminResult.dilutionVolume20PercentMl)} мл
+Скорость разведенного раствора 20% альбумина: ${formatAlbuminNumber(albuminResult.speed20PercentDilutedMlHour)} мл/ч
+20% альбумин допустимо вводить через центральный венозный катетер в чистом виде
+
+Объем 10% альбумина: ${formatTransfusionNumber(albuminResult.volume10PercentMl)} мл
+Скорость для 10% альбумина: ${formatAlbuminNumber(albuminResult.speed10PercentMlHour)} мл/ч`
     }
 
     if (donorCollectionResult !== undefined) {
@@ -430,6 +492,7 @@ ${requirements}`
     return undefined
   }, [
     component,
+    albuminResult,
     donorCollectionResult,
     numericValues.plannedVolumeMl,
     numericValues.weightKg,
@@ -569,13 +632,33 @@ ${requirements}`
           <CalculatorError>{redCellError}</CalculatorError>
         </>}
 
+      {component === 'albumin' &&
+        <>
+          <CalculatorNumberField
+            label={names.labels.currentAlbuminGL}
+            min="0"
+            step="0.1"
+            value={inputs.currentAlbuminGL}
+            onChange={(e) => handleNumberChange(e, 'currentAlbuminGL')}
+          />
+          <CalculatorNumberField
+            label={names.labels.targetAlbuminGL}
+            min="0"
+            step="0.1"
+            value={inputs.targetAlbuminGL}
+            onChange={(e) => handleNumberChange(e, 'targetAlbuminGL')}
+          />
+          <CalculatorError>{albuminError}</CalculatorError>
+          <CalculatorPanel>{names.albuminNote}</CalculatorPanel>
+        </>}
+
       <CalculatorResult
         align="start"
         multiline
       >
         {resultText}
       </CalculatorResult>
-      {component !== 'donorCollection' &&
+      {component !== 'donorCollection' && component !== 'albumin' &&
         <CalculatorPanel>{names.safety}</CalculatorPanel>}
     </CalculatorForm>
   )
