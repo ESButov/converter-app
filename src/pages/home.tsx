@@ -1,117 +1,14 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
+import { calculatorGroups } from '../data/calculators'
+import AppBottomNavigation from '../ui/AppBottomNavigation'
+import FavoriteCalculatorButton from '../ui/FavoriteCalculatorButton'
+import { useFavoriteCalculatorState } from '../ui/favoriteCalculators'
 import './home.css'
-
-type HomeRoute = {
-  name: string
-  to: string
-}
-
-type CalculatorGroup = {
-  id: string
-  name: string
-  routes: HomeRoute[]
-}
-
-const calculatorGroups: CalculatorGroup[] = [
-  {
-    id: 'infusion',
-    name: 'Инфузионная терапия',
-    routes: [
-      {
-        name: 'Расчет инфузионной терапии',
-        to: '/calculation/ipscalc',
-      },
-      {
-        name: 'Расчет капельного введения',
-        to: '/calculation/iv-drip',
-      },
-      {
-        name: 'Приготовление раствора глюкозы',
-        to: '/calculation/glucose',
-      },
-      {
-        name: 'Расчет ИПС',
-        to: '/calculation/ips',
-      },
-      {
-        name: 'Расчет смешанных инфузий',
-        to: '/calculation/mixed-infusions',
-      },
-    ],
-  },
-  {
-    id: 'critical-care',
-    name: 'Интенсивная терапия',
-    routes: [
-      {
-        name: 'Расчет крови и ее компонентов',
-        to: '/calculation/blood-transfusion',
-      },
-      {
-        name: 'Корректировка электролитов',
-        to: '/calculation/electrolytes',
-      },
-      {
-        name: 'Расчет препаратов для СЛР',
-        to: '/calculation/clr',
-      },
-      {
-        name: 'Протокол липидного спасения',
-        to: '/calculation/lipid-save',
-      },
-    ],
-  },
-  {
-    id: 'nutrition',
-    name: 'Кормление',
-    routes: [
-      {
-        name: 'Расчет ПЭП',
-        to: '/calculation/pep',
-      },
-      {
-        name: 'Расчет энтерального питания',
-        to: '/calculation/enteral-nutrition',
-      },
-    ],
-  },
-  {
-    id: 'diagnostics',
-    name: 'УЗИ',
-    routes: [
-      {
-        name: 'Расчет норм ЭХОКГ',
-        to: '/calculation/echo',
-      },
-      {
-        name: 'ЭКГ',
-        to: '/calculation/ecg',
-      },
-      {
-        name: 'Калькулятор ПДР',
-        to: '/calculation/pdr',
-      },
-    ],
-  },
-  {
-    id: 'other',
-    name: 'Прочее',
-    routes: [
-      {
-        name: 'Расчет площади тела',
-        to: '/calculation/body-surface-area',
-      },
-      {
-        name: 'Конвертер единиц измерения',
-        to: '/calculation/convert',
-      },
-    ],
-  },
-]
 
 export default function HomePage() {
   const [openGroupId, setOpenGroupId] = useState<string | null>(null)
+  const { favoriteIdSet, toggleFavorite } = useFavoriteCalculatorState()
 
   const handleGroupToggle = (groupId: string) => {
     setOpenGroupId((currentGroupId) => (
@@ -128,7 +25,7 @@ export default function HomePage() {
           <header className="app-home-screen__header">
             <div className="app-home-screen__title-group">
               <p className="app-home-screen__app-name">VetTools</p>
-              <h1 className="app-home-screen__title">Главная</h1>
+              <h1 className="app-home-screen__title">Калькуляторы</h1>
             </div>
 
             <img
@@ -170,17 +67,25 @@ export default function HomePage() {
                       aria-label={group.name}
                     >
                       {group.routes.map((route) => (
-                        <NavLink
-                          key={route.to}
-                          className="app-home-link-card"
-                          to={route.to}
-                        >
-                          <span className="app-home-link-card__marker" aria-hidden="true" />
-                          <span className="app-home-link-card__label">{route.name}</span>
-                          <span className="app-home-link-card__arrow" aria-hidden="true">
-                            ›
-                          </span>
-                        </NavLink>
+                        <div className="app-home-calculator-row" key={route.to}>
+                          <div className="app-home-link-card app-home-calculator-card">
+                            <FavoriteCalculatorButton
+                              isFavorite={favoriteIdSet.has(route.to)}
+                              onToggle={toggleFavorite}
+                              route={route}
+                            />
+
+                            <NavLink
+                              className="app-home-calculator-card__link"
+                              to={route.to}
+                            >
+                              <span className="app-home-link-card__label">{route.name}</span>
+                              <span className="app-home-link-card__arrow" aria-hidden="true">
+                                ›
+                              </span>
+                            </NavLink>
+                          </div>
+                        </div>
                       ))}
                     </nav>
                   ) : null}
@@ -189,22 +94,7 @@ export default function HomePage() {
             })}
           </div>
 
-          <nav className="app-home-bottom-nav" aria-label="Основная навигация">
-            <NavLink className="app-home-bottom-nav__item" to="/reference">
-              <img src="/app-icons/reference-object.png" alt="" aria-hidden="true" />
-              <span>Справочник</span>
-            </NavLink>
-
-            <NavLink className="app-home-bottom-nav__item" to="/home">
-              <img src="/app-icons/home-object.png" alt="" aria-hidden="true" />
-              <span>Главная</span>
-            </NavLink>
-
-            <NavLink className="app-home-bottom-nav__item" to="/settings">
-              <img src="/app-icons/settings-object.png" alt="" aria-hidden="true" />
-              <span>Настройки</span>
-            </NavLink>
-          </nav>
+          <AppBottomNavigation />
         </section>
 
         <div className="app-home-device__indicator" aria-hidden="true" />

@@ -27,15 +27,20 @@ import MainPage from './pages'
 import HomePage from './pages/home'
 import ReferencePage from './pages/reference'
 import SettingsPage from './pages/settings'
+import FavoritesPage from './pages/favorites'
+import NotesPage from './pages/notes'
 import CalculationLayout from './layouts/CalculationLayout'
+import { ThemeProvider } from './ui/theme'
 
 function App() {
   return (
-    <>
+    <ThemeProvider>
       <section id="center">
         <Routes>
           <Route index element={<MainPage />} />
           <Route path="home" element={<HomePage />} />
+          <Route path="favorites" element={<FavoritesPage />} />
+          <Route path="notes" element={<NotesPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path='calculation/iv-drip' element={<IvDripPage />} />
           <Route path='calculation/echo' element={<EchoPage />} />
@@ -70,7 +75,7 @@ function App() {
           </Route>
         </Routes>
       </section>
-    </>
+    </ThemeProvider>
   )
 }
 

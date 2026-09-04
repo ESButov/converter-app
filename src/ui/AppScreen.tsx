@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import '../pages/home.css'
 import './AppScreen.css'
+import AppBottomNavigation from './AppBottomNavigation'
 
 type AppScreenProps = {
   ariaLabel: string
@@ -51,22 +52,7 @@ export default function AppScreen({
 
           {children}
 
-          <nav className="app-home-bottom-nav" aria-label="Основная навигация">
-            <NavLink className="app-home-bottom-nav__item" to="/reference">
-              <img src="/app-icons/reference-object.png" alt="" aria-hidden="true" />
-              <span>Справочник</span>
-            </NavLink>
-
-            <NavLink className="app-home-bottom-nav__item" to="/home">
-              <img src="/app-icons/home-object.png" alt="" aria-hidden="true" />
-              <span>Главная</span>
-            </NavLink>
-
-            <NavLink className="app-home-bottom-nav__item" to="/settings">
-              <img src="/app-icons/settings-object.png" alt="" aria-hidden="true" />
-              <span>Настройки</span>
-            </NavLink>
-          </nav>
+          <AppBottomNavigation />
         </section>
 
         <div className="app-home-device__indicator" aria-hidden="true" />

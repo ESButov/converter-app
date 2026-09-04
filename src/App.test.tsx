@@ -3,9 +3,15 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import App from './App'
+import { clearFavoriteCalculatorIds } from './ui/favoriteCalculators'
+import { clearAppNotes } from './ui/notesStorage'
 
 afterEach(() => {
   cleanup()
+  document.documentElement.removeAttribute('data-theme')
+  document.documentElement.style.removeProperty('color-scheme')
+  clearFavoriteCalculatorIds()
+  clearAppNotes()
 })
 
 describe('App routes', () => {
@@ -210,7 +216,7 @@ describe('App routes', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByRole('heading', { name: 'Главная' })).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'Калькуляторы' })).toBeTruthy()
     expect(screen.getByRole('link', { name: /Справочник/ })).toBeTruthy()
     expect(screen.queryByRole('link', { name: 'Токсикология' })).toBeNull()
 
@@ -255,6 +261,131 @@ describe('App routes', () => {
     expect(screen.getByRole('button', { name: /Контакты/ })).toBeTruthy()
     expect(screen.getByRole('button', { name: /Безопасность/ })).toBeTruthy()
     expect(screen.getByRole('button', { name: /Информация/ })).toBeTruthy()
+  })
+
+  it('renders favorites page by /favorites route', () => {
+    render(
+      <MemoryRouter initialEntries={['/favorites']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Избранное' })).toBeTruthy()
+    expect(screen.getByText('Избранные калькуляторы появятся здесь.')).toBeTruthy()
+  })
+
+  it('renders notes page by /notes route', () => {
+    render(
+      <MemoryRouter initialEntries={['/notes']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Заметки' })).toBeTruthy()
+    expect(screen.getByLabelText('Заголовок')).toBeTruthy()
+    expect(screen.getByLabelText('Текст заметки')).toBeTruthy()
+  })
+
+  it('adds and removes a calculator from favorites', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <MemoryRouter initialEntries={['/home']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    await user.click(screen.getByRole('button', { name: /Инфузионная терапия/ }))
+    const addFavoriteButton = screen.getByRole('button', { name: /Добавить в избранное: Расчет ИПС/ })
+
+    expect(addFavoriteButton.textContent).toContain('☆')
+
+    await user.click(addFavoriteButton)
+
+    const removeFavoriteButton = screen.getByRole('button', { name: /Убрать из избранного: Расчет ИПС/ })
+
+    expect(removeFavoriteButton.textContent).toContain('★')
+
+    await user.click(screen.getByRole('link', { name: 'Избранное' }))
+
+    expect(screen.getByRole('heading', { name: 'Избранное' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: /Расчет ИПС/ })).toBeTruthy()
+
+    await user.click(screen.getByRole('button', { name: /Убрать из избранного: Расчет ИПС/ }))
+
+    expect(screen.getByText('Избранные калькуляторы появятся здесь.')).toBeTruthy()
+  })
+
+  it('renders five-section bottom navigation', () => {
+    render(
+      <MemoryRouter initialEntries={['/home']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('link', { name: 'Справочник' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Калькуляторы' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Заметки' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Избранное' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Настройки' })).toBeTruthy()
+  })
+
+  it('marks the current global navigation section as active', () => {
+    const routes = [
+      { label: 'Калькуляторы', path: '/home' },
+      { label: 'Справочник', path: '/reference' },
+      { label: 'Заметки', path: '/notes' },
+      { label: 'Избранное', path: '/favorites' },
+      { label: 'Настройки', path: '/settings' },
+    ]
+
+    routes.forEach((route) => {
+      const { unmount } = render(
+        <MemoryRouter initialEntries={[route.path]}>
+          <App />
+        </MemoryRouter>,
+      )
+
+      expect(screen.getByRole('link', { name: route.label }).className).toContain('active')
+
+      unmount()
+    })
+  })
+
+  it('adds a note from the notes page', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <MemoryRouter initialEntries={['/notes']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    await user.type(screen.getByLabelText('Заголовок'), 'Послеоперационный контроль')
+    await user.type(screen.getByLabelText('Текст заметки'), 'Проверить диурез через 2 часа')
+    await user.click(screen.getByRole('button', { name: 'Добавить заметку' }))
+
+    expect(screen.getByRole('heading', { name: 'Послеоперационный контроль' })).toBeTruthy()
+    expect(screen.getByText('Проверить диурез через 2 часа')).toBeTruthy()
+  })
+
+  it('switches app theme from the settings page', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <MemoryRouter initialEntries={['/settings']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    const themeSwitch = screen.getByRole('switch', { name: /Тема оформления/ })
+
+    expect(themeSwitch.getAttribute('aria-checked')).toBe('false')
+
+    await user.click(themeSwitch)
+
+    expect(themeSwitch.getAttribute('aria-checked')).toBe('true')
+    expect(document.documentElement.dataset.theme).toBe('dark')
   })
 
   it('opens settings from the home bottom navigation', async () => {

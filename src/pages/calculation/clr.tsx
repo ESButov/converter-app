@@ -61,7 +61,7 @@ const styles = {
     padding: '12px 14px',
     border: '1px solid var(--app-home-card-border)',
     borderRadius: '16px',
-    backgroundColor: 'rgba(255, 255, 255, 0.74)',
+    backgroundColor: 'var(--app-home-card)',
     boxShadow: 'var(--app-home-card-shadow)',
   },
   drugHeader: {
@@ -90,7 +90,7 @@ const styles = {
     lineHeight: 1.2,
   },
   unavailableVolume: {
-    color: '#a53d2d',
+    color: 'var(--app-home-danger-text)',
     fontSize: '13px',
     fontWeight: 800,
     lineHeight: 1.25,

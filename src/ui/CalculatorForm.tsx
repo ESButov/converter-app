@@ -11,6 +11,7 @@ import type {
 import '../pages/home.css'
 import './AppScreen.css'
 import './CalculatorForm.css'
+import AppBottomNavigation from './AppBottomNavigation'
 
 type CalculatorFormProps = {
   title: string
@@ -95,27 +96,6 @@ function CalculatorNavigationLink({
   )
 }
 
-function CalculatorBottomNavigation() {
-  return (
-    <nav className="app-home-bottom-nav" aria-label="Основная навигация">
-      <CalculatorNavigationLink className="app-home-bottom-nav__item" to="/reference">
-        <img src="/app-icons/reference-object.png" alt="" aria-hidden="true" />
-        <span>Справочник</span>
-      </CalculatorNavigationLink>
-
-      <CalculatorNavigationLink className="app-home-bottom-nav__item" to="/home">
-        <img src="/app-icons/home-object.png" alt="" aria-hidden="true" />
-        <span>Главная</span>
-      </CalculatorNavigationLink>
-
-      <CalculatorNavigationLink className="app-home-bottom-nav__item" to="/settings">
-        <img src="/app-icons/settings-object.png" alt="" aria-hidden="true" />
-        <span>Настройки</span>
-      </CalculatorNavigationLink>
-    </nav>
-  )
-}
-
 function CalculatorForm({ title, children }: CalculatorFormProps) {
   return (
     <main className="app-home-page" aria-label="VetTools">
@@ -147,7 +127,7 @@ function CalculatorForm({ title, children }: CalculatorFormProps) {
             {children}
           </form>
 
-          <CalculatorBottomNavigation />
+          <AppBottomNavigation />
         </section>
 
         <div className="app-home-device__indicator" aria-hidden="true" />

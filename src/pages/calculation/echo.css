@@ -5,7 +5,7 @@
   padding: 12px;
   border: 1px solid var(--app-home-card-border);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--app-home-card);
   box-shadow: var(--app-home-card-shadow);
 }
 
@@ -40,7 +40,7 @@
   padding: 0 8px;
   border: 1px solid var(--app-home-card-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--app-home-field-bg);
   box-sizing: border-box;
   color: var(--app-home-text);
   font: inherit;
@@ -52,26 +52,26 @@
 
 .app-echo-measurement-input:focus {
   border-color: rgba(10, 166, 162, 0.72);
-  box-shadow: 0 0 0 3px rgba(47, 200, 196, 0.16);
+  box-shadow: 0 0 0 3px var(--app-home-focus-ring);
 }
 
 .app-echo-measurement-input:disabled {
-  background: rgba(232, 246, 244, 0.78);
-  color: rgba(9, 39, 56, 0.56);
+  background: var(--app-home-field-disabled-bg);
+  color: var(--app-home-field-disabled-text);
   cursor: not-allowed;
 }
 
 .app-echo-measurement-input[data-status="normal"] {
   border-color: rgba(10, 166, 162, 0.72);
-  background: rgba(221, 250, 243, 0.92);
-  color: #08645f;
+  background: var(--app-home-success-bg);
+  color: var(--app-home-success-text);
   box-shadow: 0 0 0 1px rgba(10, 166, 162, 0.2);
 }
 
 .app-echo-measurement-input[data-status="abnormal"] {
   border-color: rgba(232, 95, 78, 0.72);
-  background: rgba(255, 241, 237, 0.94);
-  color: #9d3527;
+  background: var(--app-home-danger-bg);
+  color: var(--app-home-danger-text);
   box-shadow: 0 0 0 1px rgba(232, 95, 78, 0.2);
 }
 
@@ -84,7 +84,7 @@
   padding: 4px 7px;
   border: 1px solid rgba(116, 204, 199, 0.34);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.58);
+  background: var(--app-home-card-inner);
   box-sizing: border-box;
   color: var(--app-home-muted);
   font-size: 10px;

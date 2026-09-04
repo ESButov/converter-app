@@ -4,6 +4,7 @@ import {
   veterinaryPreparationReferenceItems,
   type VeterinaryPreparationReferenceItem,
 } from '../../data/veterinaryPreparationsReference'
+import AppBottomNavigation from '../../ui/AppBottomNavigation'
 import '../home.css'
 import './toxic.css'
 
@@ -45,27 +46,6 @@ const getAnalogPreparations = (item: VeterinaryPreparationReferenceItem) => {
   ))
 }
 
-function ReferenceBottomNavigation() {
-  return (
-    <nav className="app-home-bottom-nav" aria-label="Основная навигация">
-      <NavLink className="app-home-bottom-nav__item" to="/reference">
-        <img src="/app-icons/reference-object.png" alt="" aria-hidden="true" />
-        <span>Справочник</span>
-      </NavLink>
-
-      <NavLink className="app-home-bottom-nav__item" to="/home">
-        <img src="/app-icons/home-object.png" alt="" aria-hidden="true" />
-        <span>Главная</span>
-      </NavLink>
-
-      <NavLink className="app-home-bottom-nav__item" to="/settings">
-        <img src="/app-icons/settings-object.png" alt="" aria-hidden="true" />
-        <span>Настройки</span>
-      </NavLink>
-    </nav>
-  )
-}
-
 function PreparationsShell({
   backLabel,
   backTo,
@@ -102,7 +82,7 @@ function PreparationsShell({
 
           {children}
 
-          <ReferenceBottomNavigation />
+          <AppBottomNavigation />
         </section>
 
         <div className="app-home-device__indicator" aria-hidden="true" />

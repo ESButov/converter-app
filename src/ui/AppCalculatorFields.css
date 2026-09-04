@@ -39,7 +39,7 @@
   flex: 0 0 auto;
   border: 1px solid var(--app-home-card-border);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.74);
+  background: var(--app-home-card);
   box-shadow: var(--app-home-card-shadow);
 }
 
@@ -61,7 +61,7 @@
   padding: 0 12px;
   border: 1px solid var(--app-home-card-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.86);
+  background: var(--app-home-field-bg);
   box-sizing: border-box;
   color: var(--app-home-text);
   font: inherit;
@@ -77,12 +77,13 @@
 .app-calculation-field input:focus,
 .app-calculation-field select:focus {
   border-color: rgba(10, 166, 162, 0.72);
-  box-shadow: 0 0 0 3px rgba(47, 200, 196, 0.16);
+  box-shadow: 0 0 0 3px var(--app-home-focus-ring);
 }
 
-.app-calculation-field input:disabled {
-  background: rgba(232, 246, 244, 0.78);
-  color: rgba(9, 39, 56, 0.56);
+.app-calculation-field input:disabled,
+.app-calculation-field select:disabled {
+  background: var(--app-home-field-disabled-bg);
+  color: var(--app-home-field-disabled-text);
   cursor: not-allowed;
 }
 
@@ -124,6 +125,6 @@
 
 .app-calculation-error {
   border-color: rgba(232, 95, 78, 0.34);
-  background: rgba(255, 245, 242, 0.82);
-  color: #a53d2d;
+  background: var(--app-home-danger-bg);
+  color: var(--app-home-danger-text);
 }

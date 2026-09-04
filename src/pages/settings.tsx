@@ -1,5 +1,7 @@
-import { NavLink } from 'react-router-dom'
+import { useContext } from 'react'
+import AppBottomNavigation from '../ui/AppBottomNavigation'
 import './home.css'
+import { ThemeContext } from '../ui/theme'
 
 type SettingsGroup = {
   id: string
@@ -26,6 +28,9 @@ const settingsGroups = [
 ] as const satisfies readonly SettingsGroup[]
 
 export default function SettingsPage() {
+  const { isDark, toggleTheme } = useContext(ThemeContext)
+  const themeLabel = isDark ? 'Темная тема' : 'Светлая тема'
+
   return (
     <main className="app-home-page" aria-label="VetTools">
       <div className="app-home-device" aria-label="Настройки VetTools">
@@ -71,24 +76,34 @@ export default function SettingsPage() {
                 </div>
               </section>
             ))}
+
+            <section
+              aria-label="Переключение темы"
+              className="app-settings-theme-section"
+            >
+              <button
+                aria-checked={isDark}
+                className="app-settings-theme-toggle"
+                onClick={toggleTheme}
+                role="switch"
+                type="button"
+              >
+                <span className="app-settings-theme-toggle__text">
+                  <span className="app-settings-theme-toggle__label">
+                    Тема оформления
+                  </span>
+                  <span className="app-settings-theme-toggle__status">
+                    {themeLabel}
+                  </span>
+                </span>
+                <span className="app-settings-theme-toggle__track" aria-hidden="true">
+                  <span className="app-settings-theme-toggle__thumb" />
+                </span>
+              </button>
+            </section>
           </div>
 
-          <nav className="app-home-bottom-nav" aria-label="Основная навигация">
-            <NavLink className="app-home-bottom-nav__item" to="/reference">
-              <img src="/app-icons/reference-object.png" alt="" aria-hidden="true" />
-              <span>Справочник</span>
-            </NavLink>
-
-            <NavLink className="app-home-bottom-nav__item" to="/home">
-              <img src="/app-icons/home-object.png" alt="" aria-hidden="true" />
-              <span>Главная</span>
-            </NavLink>
-
-            <NavLink className="app-home-bottom-nav__item" to="/settings">
-              <img src="/app-icons/settings-object.png" alt="" aria-hidden="true" />
-              <span>Настройки</span>
-            </NavLink>
-          </nav>
+          <AppBottomNavigation />
         </section>
 
         <div className="app-home-device__indicator" aria-hidden="true" />

@@ -146,7 +146,7 @@ const styles = {
   resultCell: {
     minHeight: '34px',
     padding: '7px 6px',
-    backgroundColor: 'rgba(255, 255, 255, 0.78)',
+    backgroundColor: 'var(--app-home-table-cell-bg)',
     color: 'var(--app-home-text)',
     display: 'flex',
     alignItems: 'center',
@@ -154,15 +154,15 @@ const styles = {
   resultCellWarn: {
     minHeight: '34px',
     padding: '7px 6px',
-    backgroundColor: 'rgba(255, 245, 242, 0.9)',
-    color: '#a53d2d',
+    backgroundColor: 'var(--app-home-danger-bg)',
+    color: 'var(--app-home-danger-text)',
     display: 'flex',
     alignItems: 'center',
   },
   resultHeader: {
     minHeight: '30px',
     padding: '7px 6px',
-    backgroundColor: 'rgba(47, 200, 196, 0.18)',
+    backgroundColor: 'var(--app-home-table-header-bg)',
     color: 'var(--app-home-text)',
     display: 'flex',
     alignItems: 'center',

@@ -32,7 +32,7 @@
   flex: 0 0 auto;
   border: 1px solid var(--app-home-card-border);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.74);
+  background: var(--app-home-card);
   box-shadow: var(--app-home-card-shadow);
 }
 
@@ -56,7 +56,7 @@
   padding: 0 12px;
   border: 1px solid var(--app-home-card-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.86);
+  background: var(--app-home-field-bg);
   box-sizing: border-box;
   color: var(--app-home-text);
   font: inherit;
@@ -75,7 +75,7 @@
 .app-iv-drip-select:focus,
 .app-iv-drip-time-card input:focus {
   border-color: rgba(10, 166, 162, 0.72);
-  box-shadow: 0 0 0 3px rgba(47, 200, 196, 0.16);
+  box-shadow: 0 0 0 3px var(--app-home-focus-ring);
 }
 
 .app-iv-drip-note {
@@ -175,7 +175,7 @@
   padding: 10px;
   border: 1px solid var(--app-home-card-border);
   border-radius: 16px;
-  background: #f8ffff;
+  background: var(--app-home-popup-bg);
   box-shadow: var(--app-home-card-shadow);
 }
 
@@ -201,11 +201,11 @@
 }
 
 .app-iv-drip-factor-cell {
-  background: rgba(255, 255, 255, 0.86);
+  background: var(--app-home-table-cell-bg);
 }
 
 .app-iv-drip-factor-header {
-  background: rgba(47, 200, 196, 0.16);
+  background: var(--app-home-table-header-bg);
   color: var(--app-home-accent-strong);
   font-weight: 900;
 }
@@ -365,6 +365,53 @@
   font-weight: 800;
   line-height: 1.4;
   white-space: pre-line;
+}
+
+:root[data-theme="dark"] .app-iv-drip-visualization {
+  border-color: rgba(91, 229, 202, 0.28);
+  background:
+    linear-gradient(180deg, rgba(18, 37, 32, 0.94), rgba(8, 18, 16, 0.96)),
+    radial-gradient(circle at 50% 0, rgba(91, 229, 202, 0.18), transparent 58%);
+}
+
+:root[data-theme="dark"] .app-iv-drip-bag {
+  border-color: rgba(238, 250, 244, 0.22);
+  background:
+    linear-gradient(90deg, rgba(238, 250, 244, 0.2), rgba(238, 250, 244, 0.04) 22%, rgba(238, 250, 244, 0.17)),
+    rgba(19, 47, 42, 0.82);
+  box-shadow:
+    inset 0 0 18px rgba(91, 229, 202, 0.2),
+    0 12px 22px rgba(0, 0, 0, 0.26);
+}
+
+:root[data-theme="dark"] .app-iv-drip-bag::before {
+  border-color: rgba(238, 250, 244, 0.22);
+  background: rgba(20, 38, 33, 0.96);
+}
+
+:root[data-theme="dark"] .app-iv-drip-bag-cap,
+:root[data-theme="dark"] .app-iv-drip-port {
+  background: rgba(238, 250, 244, 0.22);
+}
+
+:root[data-theme="dark"] .app-iv-drip-bottle-fluid,
+:root[data-theme="dark"] .app-iv-drip-chamber-fluid {
+  background: rgba(66, 217, 200, 0.44);
+}
+
+:root[data-theme="dark"] .app-iv-drip-line {
+  background: rgba(238, 250, 244, 0.42);
+}
+
+:root[data-theme="dark"] .app-iv-drip-chamber {
+  border-color: rgba(238, 250, 244, 0.28);
+  background:
+    linear-gradient(90deg, rgba(238, 250, 244, 0.18), rgba(238, 250, 244, 0.04) 45%, rgba(238, 250, 244, 0.14)),
+    rgba(16, 32, 28, 0.88);
+}
+
+:root[data-theme="dark"] .app-iv-drip-bag-glare {
+  background: rgba(238, 250, 244, 0.22);
 }
 
 @media (max-width: 480px) {
