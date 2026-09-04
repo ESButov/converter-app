@@ -1,0 +1,115 @@
+.app-echo-table {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: var(--app-home-card-shadow);
+}
+
+.app-echo-header-row,
+.app-echo-row {
+  display: grid;
+  grid-template-columns: minmax(74px, 1fr) 78px 108px;
+  gap: 8px;
+  align-items: center;
+}
+
+.app-echo-header-row {
+  color: var(--app-home-muted);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.app-echo-indicator-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--app-home-text);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.15;
+}
+
+.app-echo-measurement-input {
+  width: 100%;
+  min-width: 0;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.88);
+  box-sizing: border-box;
+  color: var(--app-home-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 850;
+  text-align: center;
+  outline: none;
+}
+
+.app-echo-measurement-input:focus {
+  border-color: rgba(10, 166, 162, 0.72);
+  box-shadow: 0 0 0 3px rgba(47, 200, 196, 0.16);
+}
+
+.app-echo-measurement-input:disabled {
+  background: rgba(232, 246, 244, 0.78);
+  color: rgba(9, 39, 56, 0.56);
+  cursor: not-allowed;
+}
+
+.app-echo-measurement-input[data-status="normal"] {
+  border-color: rgba(10, 166, 162, 0.72);
+  background: rgba(221, 250, 243, 0.92);
+  color: #08645f;
+  box-shadow: 0 0 0 1px rgba(10, 166, 162, 0.2);
+}
+
+.app-echo-measurement-input[data-status="abnormal"] {
+  border-color: rgba(232, 95, 78, 0.72);
+  background: rgba(255, 241, 237, 0.94);
+  color: #9d3527;
+  box-shadow: 0 0 0 1px rgba(232, 95, 78, 0.2);
+}
+
+.app-echo-norm-text {
+  min-width: 0;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 7px;
+  border: 1px solid rgba(116, 204, 199, 0.34);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.58);
+  box-sizing: border-box;
+  color: var(--app-home-muted);
+  font-size: 10px;
+  font-weight: 850;
+  line-height: 1.18;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 480px) {
+  .app-echo-table {
+    padding: 10px;
+  }
+
+  .app-echo-header-row,
+  .app-echo-row {
+    grid-template-columns: minmax(68px, 1fr) 72px 94px;
+    gap: 6px;
+  }
+
+  .app-echo-indicator-label {
+    font-size: 11px;
+  }
+
+  .app-echo-norm-text {
+    font-size: 9px;
+  }
+}

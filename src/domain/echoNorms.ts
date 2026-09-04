@@ -18,7 +18,6 @@ export type EchoIndicatorId =
   | 'lvids'
   | 'lvidsn'
   | 'lvfws'
-  | 'fs'
   | 'la'
   | 'ao'
   | 'laAo'
@@ -89,7 +88,6 @@ const echoMeta: Record<EchoIndicatorId, Pick<EchoNorm, 'label' | 'sourceCode' | 
   lvids: { label: 'ЛЖс', sourceCode: 'LVIDs', unit: 'см' },
   lvidsn: { label: 'КСРн', sourceCode: 'LVIDsN', unit: '' },
   lvfws: { label: 'ЗСЛЖс', sourceCode: 'LVFWs', unit: 'см' },
-  fs: { label: 'ФУ', sourceCode: 'FS', unit: '%' },
   la: { label: 'ЛП', sourceCode: 'LA', unit: 'см' },
   ao: { label: 'Ао', sourceCode: 'Ao', unit: 'см' },
   laAo: { label: 'ЛП/Ао', sourceCode: 'LA:Ao', unit: '' },
@@ -226,7 +224,6 @@ export const catEchoIndicatorOrder = [
   'ivss',
   'lvids',
   'lvfws',
-  'fs',
   'la',
   'ao',
   'laAo',
@@ -248,7 +245,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(4.8, 3.5, 6.7, 'predictionInterval'),
       lvids: cmRangeFromMm(6.4, 4.2, 9.6, 'predictionInterval'),
       lvfws: cmRangeFromMm(4.8, 3.6, 6.5, 'predictionInterval'),
-      fs: range(45, 28, 62, '%', 'predictionInterval'),
       la: cmRangeFromMm(7.7, 5.8, 10.2, 'predictionInterval'),
       ao: cmRangeFromMm(7.0, 5.5, 8.8, 'predictionInterval'),
       laAo: range(1.13, 0.85, 1.4, '', 'predictionInterval'),
@@ -263,7 +259,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(5.2, 3.7, 7.2, 'predictionInterval'),
       lvids: cmRangeFromMm(6.9, 4.6, 10.5, 'predictionInterval'),
       lvfws: cmRangeFromMm(5.2, 3.9, 7.1, 'predictionInterval'),
-      fs: range(45, 28, 62, '%', 'predictionInterval'),
       la: cmRangeFromMm(8.5, 6.3, 11.2, 'predictionInterval'),
       ao: cmRangeFromMm(7.5, 6.0, 9.5, 'predictionInterval'),
       laAo: range(1.13, 0.85, 1.4, '', 'predictionInterval'),
@@ -278,7 +273,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(5.4, 3.9, 7.6, 'predictionInterval'),
       lvids: cmRangeFromMm(7.4, 4.8, 11.2, 'predictionInterval'),
       lvfws: cmRangeFromMm(5.5, 4.1, 7.5, 'predictionInterval'),
-      fs: range(45, 28, 62, '%', 'predictionInterval'),
       la: cmRangeFromMm(9.1, 6.8, 12.0, 'predictionInterval'),
       ao: cmRangeFromMm(8.0, 6.3, 10.1, 'predictionInterval'),
       laAo: range(1.14, 0.86, 1.41, '', 'predictionInterval'),
@@ -293,7 +287,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(5.7, 4.1, 7.9, 'predictionInterval'),
       lvids: cmRangeFromMm(7.7, 5.1, 11.7, 'predictionInterval'),
       lvfws: cmRangeFromMm(5.8, 4.3, 7.9, 'predictionInterval'),
-      fs: range(45, 28, 62, '%', 'predictionInterval'),
       la: cmRangeFromMm(9.6, 7.2, 12.7, 'predictionInterval'),
       ao: cmRangeFromMm(8.4, 6.7, 10.7, 'predictionInterval'),
       laAo: range(1.14, 0.86, 1.42, '', 'predictionInterval'),
@@ -308,7 +301,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(5.9, 4.2, 8.2, 'predictionInterval'),
       lvids: cmRangeFromMm(8.0, 5.3, 12.2, 'predictionInterval'),
       lvfws: cmRangeFromMm(6.0, 4.5, 8.2, 'predictionInterval'),
-      fs: range(45, 28, 62, '%', 'predictionInterval'),
       la: cmRangeFromMm(10.0, 7.6, 13.4, 'predictionInterval'),
       ao: cmRangeFromMm(8.8, 7.0, 11.1, 'predictionInterval'),
       laAo: range(1.15, 0.87, 1.42, '', 'predictionInterval'),
@@ -323,7 +315,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(6.0, 4.3, 8.4, 'predictionInterval'),
       lvids: cmRangeFromMm(8.3, 5.5, 12.6, 'predictionInterval'),
       lvfws: cmRangeFromMm(6.3, 4.6, 8.5, 'predictionInterval'),
-      fs: range(45, 28, 62, '%', 'predictionInterval'),
       la: cmRangeFromMm(10.5, 7.9, 13.9, 'predictionInterval'),
       ao: cmRangeFromMm(9.1, 7.2, 11.6, 'predictionInterval'),
       laAo: range(1.15, 0.88, 1.43, '', 'predictionInterval'),
@@ -338,7 +329,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(6.2, 4.4, 8.7, 'predictionInterval'),
       lvids: cmRangeFromMm(8.6, 5.7, 13.0, 'predictionInterval'),
       lvfws: cmRangeFromMm(6.5, 4.8, 8.7, 'predictionInterval'),
-      fs: range(45, 28, 62, '%', 'predictionInterval'),
       la: cmRangeFromMm(10.9, 8.2, 14.5, 'predictionInterval'),
       ao: cmRangeFromMm(9.4, 7.5, 11.9, 'predictionInterval'),
       laAo: range(1.15, 0.88, 1.43, '', 'predictionInterval'),
@@ -353,7 +343,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(6.4, 4.6, 8.9, 'predictionInterval'),
       lvids: cmRangeFromMm(8.8, 5.8, 13.4, 'predictionInterval'),
       lvfws: cmRangeFromMm(6.6, 4.9, 9.0, 'predictionInterval'),
-      fs: range(45, 28, 62, '%', 'predictionInterval'),
       la: cmRangeFromMm(11.2, 8.4, 14.9, 'predictionInterval'),
       ao: cmRangeFromMm(9.7, 7.7, 12.3, 'predictionInterval'),
       laAo: range(1.16, 0.88, 1.43, '', 'predictionInterval'),
@@ -368,7 +357,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(6.5, 4.7, 9.1, 'predictionInterval'),
       lvids: cmRangeFromMm(9.0, 6.0, 13.7, 'predictionInterval'),
       lvfws: cmRangeFromMm(6.8, 5.0, 9.2, 'predictionInterval'),
-      fs: range(45, 28, 62, '%', 'predictionInterval'),
       la: cmRangeFromMm(11.6, 8.7, 15.4, 'predictionInterval'),
       ao: cmRangeFromMm(10.0, 7.9, 12.6, 'predictionInterval'),
       laAo: range(1.16, 0.89, 1.44, '', 'predictionInterval'),
@@ -383,7 +371,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(6.6, 4.7, 9.3, 'predictionInterval'),
       lvids: cmRangeFromMm(9.3, 6.1, 14.1, 'predictionInterval'),
       lvfws: cmRangeFromMm(7.0, 5.1, 9.4, 'predictionInterval'),
-      fs: range(45, 28, 62, '%', 'predictionInterval'),
       la: cmRangeFromMm(11.9, 8.9, 15.8, 'predictionInterval'),
       ao: cmRangeFromMm(10.2, 8.1, 12.9, 'predictionInterval'),
       laAo: range(1.16, 0.89, 1.44, '', 'predictionInterval'),
@@ -398,7 +385,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(6.7, 4.8, 9.4, 'predictionInterval'),
       lvids: cmRangeFromMm(9.4, 6.2, 14.3, 'predictionInterval'),
       lvfws: cmRangeFromMm(7.1, 5.3, 9.6, 'predictionInterval'),
-      fs: range(45, 28, 62, '%', 'predictionInterval'),
       la: cmRangeFromMm(12.2, 9.2, 16.2, 'predictionInterval'),
       ao: cmRangeFromMm(10.5, 8.3, 13.2, 'predictionInterval'),
       laAo: range(1.17, 0.9, 1.45, '', 'predictionInterval'),
@@ -413,7 +399,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(6.9, 4.9, 9.6, 'predictionInterval'),
       lvids: cmRangeFromMm(9.6, 6.3, 14.6, 'predictionInterval'),
       lvfws: cmRangeFromMm(7.3, 5.4, 9.8, 'predictionInterval'),
-      fs: range(45, 28, 62, '%', 'predictionInterval'),
       la: cmRangeFromMm(12.5, 9.4, 16.6, 'predictionInterval'),
       ao: cmRangeFromMm(10.7, 8.4, 13.5, 'predictionInterval'),
       laAo: range(1.18, 0.9, 1.46, '', 'predictionInterval'),
@@ -428,7 +413,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(7.0, 5.0, 9.7, 'predictionInterval'),
       lvids: cmRangeFromMm(9.8, 6.5, 14.9, 'predictionInterval'),
       lvfws: cmRangeFromMm(7.4, 5.5, 10.0, 'predictionInterval'),
-      fs: range(45, 28, 62, '%', 'predictionInterval'),
       la: cmRangeFromMm(12.7, 9.6, 16.9, 'predictionInterval'),
       ao: cmRangeFromMm(10.9, 8.6, 13.8, 'predictionInterval'),
       laAo: range(1.18, 0.91, 1.46, '', 'predictionInterval'),
@@ -443,7 +427,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(7.1, 5.1, 9.9, 'predictionInterval'),
       lvids: cmRangeFromMm(10.0, 6.6, 15.1, 'predictionInterval'),
       lvfws: cmRangeFromMm(7.5, 5.6, 10.2, 'predictionInterval'),
-      fs: range(45, 28, 62, '%', 'predictionInterval'),
       la: cmRangeFromMm(13.0, 9.8, 17.3, 'predictionInterval'),
       ao: cmRangeFromMm(11.1, 8.8, 14.0, 'predictionInterval'),
       laAo: range(1.19, 0.91, 1.47, '', 'predictionInterval'),
@@ -458,7 +441,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(7.2, 5.1, 10.0, 'predictionInterval'),
       lvids: cmRangeFromMm(10.1, 6.7, 15.4, 'predictionInterval'),
       lvfws: cmRangeFromMm(7.6, 5.6, 10.3, 'predictionInterval'),
-      fs: range(45, 28, 62, '%', 'predictionInterval'),
       la: cmRangeFromMm(13.2, 10.0, 17.6, 'predictionInterval'),
       ao: cmRangeFromMm(11.3, 8.9, 14.3, 'predictionInterval'),
       laAo: range(1.19, 0.92, 1.47, '', 'predictionInterval'),
@@ -473,7 +455,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(7.3, 5.2, 10.2, 'predictionInterval'),
       lvids: cmRangeFromMm(10.3, 6.8, 15.6, 'predictionInterval'),
       lvfws: cmRangeFromMm(7.7, 5.7, 10.5, 'predictionInterval'),
-      fs: range(45, 28, 62, '%', 'predictionInterval'),
       la: cmRangeFromMm(13.5, 10.1, 17.9, 'predictionInterval'),
       ao: cmRangeFromMm(11.5, 9.1, 14.5, 'predictionInterval'),
       laAo: range(1.2, 0.92, 1.47, '', 'predictionInterval'),
@@ -488,7 +469,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(7.4, 5.3, 10.3, 'predictionInterval'),
       lvids: cmRangeFromMm(10.4, 6.9, 15.8, 'predictionInterval'),
       lvfws: cmRangeFromMm(7.9, 5.8, 10.6, 'predictionInterval'),
-      fs: range(45, 28, 63, '%', 'predictionInterval'),
       la: cmRangeFromMm(13.7, 10.3, 18.2, 'predictionInterval'),
       ao: cmRangeFromMm(11.6, 9.1, 14.7, 'predictionInterval'),
       laAo: range(1.2, 0.92, 1.48, '', 'predictionInterval'),
@@ -503,7 +483,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(7.4, 5.3, 10.4, 'predictionInterval'),
       lvids: cmRangeFromMm(10.5, 6.9, 16.0, 'predictionInterval'),
       lvfws: cmRangeFromMm(8.0, 5.9, 10.8, 'predictionInterval'),
-      fs: range(45, 28, 63, '%', 'predictionInterval'),
       la: cmRangeFromMm(13.9, 10.5, 18.5, 'predictionInterval'),
       ao: cmRangeFromMm(11.8, 9.3, 14.9, 'predictionInterval'),
       laAo: range(1.21, 0.92, 1.48, '', 'predictionInterval'),
@@ -518,7 +497,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(7.5, 5.4, 10.5, 'predictionInterval'),
       lvids: cmRangeFromMm(10.7, 7.1, 16.3, 'predictionInterval'),
       lvfws: cmRangeFromMm(8.1, 6.0, 10.9, 'predictionInterval'),
-      fs: range(45, 28, 63, '%', 'predictionInterval'),
       la: cmRangeFromMm(14.1, 10.6, 18.8, 'predictionInterval'),
       ao: cmRangeFromMm(11.9, 9.5, 15.1, 'predictionInterval'),
       laAo: range(1.22, 0.94, 1.49, '', 'predictionInterval'),
@@ -533,7 +511,6 @@ export const catEchoNormRows2016: readonly CatEchoRow[] = [
       ivss: cmRangeFromMm(7.6, 5.4, 10.6, 'predictionInterval'),
       lvids: cmRangeFromMm(10.8, 7.2, 16.5, 'predictionInterval'),
       lvfws: cmRangeFromMm(8.1, 6.0, 11.0, 'predictionInterval'),
-      fs: range(45, 28, 63, '%', 'predictionInterval'),
       la: cmRangeFromMm(14.3, 10.8, 19.1, 'predictionInterval'),
       ao: cmRangeFromMm(12.1, 9.6, 15.3, 'predictionInterval'),
       laAo: range(1.22, 0.94, 1.5, '', 'predictionInterval'),
@@ -568,7 +545,6 @@ export const dogEchoIndicatorOrder = [
   'lvids',
   'lvidsn',
   'lvfws',
-  'fs',
   'la',
   'ao',
   'laAo',
@@ -576,7 +552,7 @@ export const dogEchoIndicatorOrder = [
 
 type DogEchoIndicatorId = (typeof dogEchoIndicatorOrder)[number]
 
-type DogPrintedTableColumnId = Exclude<DogEchoIndicatorId, 'lviddn' | 'lvidsn' | 'fs' | 'laAo'>
+type DogPrintedTableColumnId = Exclude<DogEchoIndicatorId, 'lviddn' | 'lvidsn' | 'laAo'>
 
 type DogPrintedTableRowMm = Record<DogPrintedTableColumnId, readonly [number, number]>
 
@@ -941,12 +917,6 @@ export const getDogEchoNorms = (weightKg: number): Record<DogEchoIndicatorId, Ec
       note: 'КСРн = КСР/ЛЖс / масса^0.315. Норма рассчитана из интервала ЛЖ-s исходной таблицы.',
     }),
     lvfws: makeNorm('lvfws', dogPrintedTableRange('lvfws', lbs), dogPrintedTableSource),
-    fs: makeNorm(
-      'fs',
-      { min: 23.36, unit: '%', intervalKind: 'clinicalCutoff' },
-      'dogEsser2020',
-      { note: 'Нижний 5-й перцентиль; верхняя граница в модели не задана.' },
-    ),
     la: makeNorm('la', dogPrintedTableRange('la', lbs), dogPrintedTableSource),
     ao: makeNorm('ao', dogPrintedTableRange('ao', lbs), dogPrintedTableSource),
     laAo: makeNorm(
@@ -982,7 +952,6 @@ export const horseEchoIndicatorOrder = [
   'ivss',
   'lvids',
   'lvfws',
-  'fs',
   'la',
   'ao',
   'pa',
@@ -998,7 +967,6 @@ const horse500KgNorms: Record<HorseEchoIndicatorId, EchoRange> = {
   ivss: range(4.3, 3.4, 5.2, 'см', 'referenceInterval'),
   lvids: range(5.6, 4.1, 7.0, 'см', 'referenceInterval'),
   lvfws: range(4.0, 3.1, 4.5, 'см', 'referenceInterval'),
-  fs: range(43.6, 33.3, 53.8, '%', 'referenceInterval'),
   la: range(10.2, 8.7, 11.6, 'см', 'referenceInterval'),
   ao: range(6.2, 5.2, 7.3, 'см', 'referenceInterval'),
   pa: range(5.0, 4.0, 6.0, 'см', 'referenceInterval'),
@@ -1073,7 +1041,6 @@ export const ferretEchoIndicatorOrder = [
   'ivss',
   'lvids',
   'lvfws',
-  'fs',
   'la',
   'ao',
   'pa',
@@ -1099,7 +1066,6 @@ const maleFerretEchoNorms: Record<FerretEchoIndicatorId, EchoNorm> = {
   lvfws: makeNorm('lvfws', cmRangeFromMm(4.4, 3.5, 5.2, 'observedRange'), 'ferretDudasGyorki2011', {
     sourceCode: 'LVWs',
   }),
-  fs: makeNorm('fs', range(32, 22, 46, '%', 'observedRange'), 'ferretDudasGyorki2011'),
   la: ferretNorm('la', 10.0, 8.3, 15.5),
   ao: ferretNorm('ao', 5.5, 4.0, 6.4),
   pa: makeNorm('pa', cmRangeFromMm(5.2, 4.1, 5.8, 'observedRange'), 'ferretDudasGyorki2011', {
@@ -1118,7 +1084,6 @@ const femaleFerretEchoNorms: Record<FerretEchoIndicatorId, EchoNorm> = {
   lvfws: makeNorm('lvfws', cmRangeFromMm(3.6, 2.6, 4.4, 'observedRange'), 'ferretDudasGyorki2011', {
     sourceCode: 'LVWs',
   }),
-  fs: makeNorm('fs', range(34, 24, 47, '%', 'observedRange'), 'ferretDudasGyorki2011'),
   la: ferretNorm('la', 8.9, 6.8, 13.2),
   ao: ferretNorm('ao', 4.6, 4.0, 5.2),
   pa: makeNorm('pa', cmRangeFromMm(4.5, 3.7, 5.2, 'observedRange'), 'ferretDudasGyorki2011', {
@@ -1165,7 +1130,6 @@ export const rabbitEchoIndicatorOrder = [
   'ivss',
   'lvids',
   'lvfws',
-  'fs',
   'la',
   'ao',
   'laAo',
@@ -1208,7 +1172,6 @@ export const rabbitEchoNorms: Record<RabbitEchoIndicatorId, EchoNorm> = {
   ivss: mean2sdMm('ivss', 4.01, 0.7),
   lvids: mean2sdMm('lvids', 8.32, 1.47),
   lvfws: mean2sdMm('lvfws', 3.56, 0.52),
-  fs: mean2sd('fs', 37.17, 4.99, '%'),
   la: mean2sdMm('la', 8.62, 1.02),
   ao: mean2sdMm('ao', 7.9, 0.77),
   laAo: mean2sd('laAo', 1.09, 0.1, ''),
@@ -1216,14 +1179,8 @@ export const rabbitEchoNorms: Record<RabbitEchoIndicatorId, EchoNorm> = {
 
 export const calculateEchoDerivedValues = (measurements: EchoMeasurements): EchoMeasurements => {
   const values = { ...measurements }
-  const lvidd = Number(values.lvidd)
-  const lvids = Number(values.lvids)
   const la = Number(values.la)
   const ao = Number(values.ao)
-
-  if (values.fs === undefined && Number.isFinite(lvidd) && Number.isFinite(lvids) && lvidd > 0) {
-    values.fs = round(((lvidd - lvids) / lvidd) * 100)
-  }
 
   if (values.laAo === undefined && Number.isFinite(la) && Number.isFinite(ao) && ao > 0) {
     values.laAo = round(la / ao)

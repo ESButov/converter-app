@@ -1,113 +1,16 @@
+import {
+  NavLink,
+  useInRouterContext,
+  type To,
+} from 'react-router-dom'
 import type {
-  CSSProperties,
   InputHTMLAttributes,
   ReactNode,
   SelectHTMLAttributes,
 } from 'react'
-
-const colors = {
-  dark: {
-    formBg: '#082332',
-    text: '#f6fbfc',
-    mutedText: '#b8d6da',
-    border: '#d8f3f2',
-    inputBg: '#0a2a3a',
-    accentSoft: '#9ee3dd',
-    resultText: '#d8f3f2',
-  },
-
-  light: {
-    formBg: '#f8ffff',
-    text: '#092435',
-    mutedText: '#426b75',
-    border: '#0d4b5f',
-    inputBg: '#ffffff',
-    accentSoft: '#ccefed',
-    resultText: '#0d4b5f',
-  },
-} as const
-
-const theme = colors.dark
-
-const styles: Record<string, CSSProperties> = {
-  form: {
-    width: 'min(423px, 100%)',
-    margin: '0 auto',
-    padding: '16px 40px 32px',
-    border: `1.5px solid ${theme.border}`,
-    backgroundColor: theme.formBg,
-    boxSizing: 'border-box',
-    color: theme.text,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-  },
-
-  title: {
-    margin: '0 0 20px',
-    fontSize: '32px',
-    lineHeight: '1.2',
-    fontWeight: 700,
-    textAlign: 'center',
-    color: theme.text,
-  },
-
-  label: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '9px',
-    fontSize: '16px',
-    lineHeight: '1.2',
-    fontWeight: 700,
-  },
-
-  input: {
-    width: '100%',
-    height: '30px',
-    padding: '2px 10px',
-    border: `1.5px solid ${theme.border}`,
-    borderRadius: 0,
-    backgroundColor: theme.inputBg,
-    color: theme.text,
-    fontSize: '16px',
-    fontWeight: 700,
-    textAlign: 'center',
-    outline: 'none',
-    boxSizing: 'border-box',
-  },
-
-  description: {
-    fontSize: '12px',
-    lineHeight: '1.35',
-    fontWeight: 700,
-    color: theme.mutedText,
-  },
-
-  panel: {
-    padding: '10px 12px',
-    border: `1px solid ${theme.accentSoft}`,
-    fontSize: '12px',
-    lineHeight: '1.35',
-    fontWeight: 700,
-    color: theme.resultText,
-    backgroundColor: theme.inputBg,
-    whiteSpace: 'pre-line',
-  },
-
-  error: {
-    fontSize: '12px',
-    lineHeight: '1.35',
-    fontWeight: 700,
-    color: '#ffb4a8',
-  },
-
-  result: {
-    marginTop: '28px',
-    fontSize: '16px',
-    lineHeight: '1.25',
-    fontWeight: 700,
-  },
-}
+import '../pages/home.css'
+import './AppScreen.css'
+import './CalculatorForm.css'
 
 type CalculatorFormProps = {
   title: string
@@ -145,6 +48,12 @@ type CalculatorResultProps = CalculatorTextProps & {
   multiline?: boolean
 }
 
+type CalculatorNavigationLinkProps = {
+  children: ReactNode
+  className: string
+  to: To
+}
+
 const hasRenderableContent = (children: ReactNode) => (
   children !== null &&
   children !== undefined &&
@@ -152,22 +61,107 @@ const hasRenderableContent = (children: ReactNode) => (
   children !== ''
 )
 
+const hashHrefFromTo = (to: To) => {
+  if (typeof to !== 'string') {
+    const pathname = to.pathname ?? '/'
+    const search = to.search ?? ''
+    const hash = to.hash ?? ''
+
+    return `#${pathname}${search}${hash}`
+  }
+
+  return `#${to}`
+}
+
+function CalculatorNavigationLink({
+  children,
+  className,
+  to,
+}: CalculatorNavigationLinkProps) {
+  const isInRouter = useInRouterContext()
+
+  if (isInRouter) {
+    return (
+      <NavLink className={className} to={to}>
+        {children}
+      </NavLink>
+    )
+  }
+
+  return (
+    <a className={className} href={hashHrefFromTo(to)}>
+      {children}
+    </a>
+  )
+}
+
+function CalculatorBottomNavigation() {
+  return (
+    <nav className="app-home-bottom-nav" aria-label="Основная навигация">
+      <CalculatorNavigationLink className="app-home-bottom-nav__item" to="/reference">
+        <img src="/app-icons/reference-object.png" alt="" aria-hidden="true" />
+        <span>Справочник</span>
+      </CalculatorNavigationLink>
+
+      <CalculatorNavigationLink className="app-home-bottom-nav__item" to="/home">
+        <img src="/app-icons/home-object.png" alt="" aria-hidden="true" />
+        <span>Главная</span>
+      </CalculatorNavigationLink>
+
+      <CalculatorNavigationLink className="app-home-bottom-nav__item" to="/settings">
+        <img src="/app-icons/settings-object.png" alt="" aria-hidden="true" />
+        <span>Настройки</span>
+      </CalculatorNavigationLink>
+    </nav>
+  )
+}
+
 function CalculatorForm({ title, children }: CalculatorFormProps) {
   return (
-    <form style={styles.form}>
-      <h1 style={styles.title}>{title}</h1>
-      {children}
-    </form>
+    <main className="app-home-page" aria-label="VetTools">
+      <div className="app-home-device" aria-label={`${title} VetTools`}>
+        <div className="app-home-device__notch" aria-hidden="true" />
+
+        <section className="app-home-screen app-screen-shell calculator-form-screen">
+          <header className="app-home-screen__header">
+            <div className="app-home-screen__title-group">
+              <p className="app-home-screen__app-name">VetTools</p>
+              <CalculatorNavigationLink className="app-screen-back-link" to="/home">
+                Назад на главную
+              </CalculatorNavigationLink>
+              <h1 className="app-home-screen__title app-screen-title">{title}</h1>
+            </div>
+
+            <img
+              className="app-home-screen__app-icon"
+              src="/app-icons/home.png"
+              alt=""
+              aria-hidden="true"
+            />
+          </header>
+
+          <form
+            className="calculator-form"
+            onSubmit={(event) => event.preventDefault()}
+          >
+            {children}
+          </form>
+
+          <CalculatorBottomNavigation />
+        </section>
+
+        <div className="app-home-device__indicator" aria-hidden="true" />
+      </div>
+    </main>
   )
 }
 
 function CalculatorNumberField({ label, ...inputProps }: CalculatorNumberFieldProps) {
   return (
-    <label style={styles.label}>
-      <span style={{display: 'inline-flex', flex: 1, alignItems: 'end'}}>{label}</span>
+    <label className="calculator-field">
+      <span>{label}</span>
       <input
         {...inputProps}
-        style={styles.input}
         type="number"
       />
     </label>
@@ -176,11 +170,10 @@ function CalculatorNumberField({ label, ...inputProps }: CalculatorNumberFieldPr
 
 function CalculatorDateField({ label, ...inputProps }: CalculatorDateFieldProps) {
   return (
-    <label style={styles.label}>
-      <span style={{display: 'inline-flex', flex: 1, alignItems: 'end'}}>{label}</span>
+    <label className="calculator-field">
+      <span>{label}</span>
       <input
         {...inputProps}
-        style={styles.input}
         type="date"
       />
     </label>
@@ -194,12 +187,9 @@ function CalculatorSelectField({
   ...selectProps
 }: CalculatorSelectFieldProps) {
   return (
-    <label style={styles.label}>
-      <span style={{display: 'inline-flex', flex: 1, alignItems: 'end'}}>{label}</span>
-      <select
-        {...selectProps}
-        style={styles.input}
-      >
+    <label className="calculator-field">
+      <span>{label}</span>
+      <select {...selectProps}>
         <option value="">{placeholder}</option>
         {options.map((option) => (
           <option
@@ -220,7 +210,7 @@ function CalculatorDescription({ children }: CalculatorTextProps) {
     return null
   }
 
-  return <span style={styles.description}>{children}</span>
+  return <span className="calculator-description">{children}</span>
 }
 
 function CalculatorError({ children }: CalculatorTextProps) {
@@ -229,12 +219,12 @@ function CalculatorError({ children }: CalculatorTextProps) {
   }
 
   return (
-    <span
+    <section
+      className="calculator-error"
       role="alert"
-      style={styles.error}
     >
       {children}
-    </span>
+    </section>
   )
 }
 
@@ -243,7 +233,7 @@ function CalculatorPanel({ children }: CalculatorTextProps) {
     return null
   }
 
-  return <span style={styles.panel}>{children}</span>
+  return <section className="calculator-panel">{children}</section>
 }
 
 function CalculatorResult({
@@ -256,15 +246,15 @@ function CalculatorResult({
   }
 
   return (
-    <span
+    <section
+      className="calculator-result"
       style={{
-        ...styles.result,
         textAlign: align === 'start' ? 'left' : 'center',
         whiteSpace: multiline ? 'pre-line' : undefined,
       }}
     >
       {children}
-    </span>
+    </section>
   )
 }
 

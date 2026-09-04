@@ -1,4 +1,5 @@
 import { cleanup, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import App from './App'
@@ -176,6 +177,99 @@ describe('App routes', () => {
     )
 
     expect(screen.getByRole('heading', { name: 'Токсикология' })).toBeTruthy()
+  })
+
+  it('renders active substances reference page by /reference/substances route', () => {
+    render(
+      <MemoryRouter initialEntries={['/reference/substances']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Действующие вещества' })).toBeTruthy()
+    expect(screen.getByText('Витамин K1 / фитоменадион / Vitamin K1')).toBeTruthy()
+  })
+
+  it('renders veterinary preparations reference page by /reference/preparations route', () => {
+    render(
+      <MemoryRouter initialEntries={['/reference/preparations']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Ветеринарные препараты' })).toBeTruthy()
+    expect(screen.getByText('Конафлион')).toBeTruthy()
+  })
+
+  it('renders redesigned home page by /home route without replacing the root draft', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <MemoryRouter initialEntries={['/home']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Главная' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: /Справочник/ })).toBeTruthy()
+    expect(screen.queryByRole('link', { name: 'Токсикология' })).toBeNull()
+
+    await user.click(screen.getByRole('button', { name: /Инфузионная терапия/ }))
+
+    expect(screen.getByRole('link', { name: /Расчет инфузионной терапии/ })).toBeTruthy()
+    expect(screen.getByRole('link', { name: /Расчет ИПС/ })).toBeTruthy()
+
+    await user.click(screen.getByRole('button', { name: /Интенсивная терапия/ }))
+
+    expect(screen.queryByRole('link', { name: /Калькулятор расчета инфузионной терапии/ })).toBeNull()
+    expect(screen.getByRole('link', { name: /Корректировка электролитов/ })).toBeTruthy()
+  })
+
+  it('renders reference index with toxicology entry by /reference route', () => {
+    render(
+      <MemoryRouter initialEntries={['/reference']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Справочник' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: /Токсикология/ })).toBeTruthy()
+    expect(screen.getByRole('link', { name: /Справочник действующих веществ/ })).toBeTruthy()
+    expect(screen.getByRole('link', { name: /Справочник ветеринарных препаратов/ })).toBeTruthy()
+  })
+
+  it('renders settings page with grouped action buttons', () => {
+    render(
+      <MemoryRouter initialEntries={['/settings']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Настройки' })).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'Аккаунт' })).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'Приложение' })).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'Помощь и связь' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /Войти в аккаунт/ })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /Инструкция по пользованию/ })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /^Настройки/ })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /Контакты/ })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /Безопасность/ })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /Информация/ })).toBeTruthy()
+  })
+
+  it('opens settings from the home bottom navigation', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <MemoryRouter initialEntries={['/home']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    await user.click(screen.getByRole('link', { name: /Настройки/ }))
+
+    expect(screen.getByRole('heading', { name: 'Настройки' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /Войти в аккаунт/ })).toBeTruthy()
   })
 
   it('shows unified electrolytes calculator on the main page instead of old electrolyte calculators', () => {

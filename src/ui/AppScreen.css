@@ -1,0 +1,52 @@
+.app-screen-shell {
+  gap: 14px;
+}
+
+.app-screen-title {
+  max-width: 238px;
+  font-size: 24px;
+  line-height: 1.08;
+}
+
+.app-screen-title::after {
+  width: 86px;
+  height: 3px;
+  margin-top: 10px;
+}
+
+.app-screen-back-link {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 6px;
+  margin: -2px 0 10px;
+  border: 0;
+  color: var(--app-home-accent-strong);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.app-screen-back-link::before {
+  content: '‹';
+  font-size: 22px;
+  line-height: 0.7;
+}
+
+.app-screen-back-link:hover,
+.app-screen-back-link:focus-visible {
+  color: var(--app-home-text);
+}
+
+.app-screen-back-link:focus-visible {
+  outline: 3px solid rgba(47, 200, 196, 0.28);
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .app-screen-title {
+    max-width: 220px;
+    font-size: 24px;
+  }
+}

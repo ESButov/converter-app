@@ -2,6 +2,7 @@ import { useMemo, useState, type ChangeEvent, type CSSProperties } from 'react'
 import {
   calculateMixedInfusion,
   formatMixedInfusionNumber,
+  getMixedInfusionDoseInputPattern,
   getMixedInfusionDoseHint,
   mixedInfusionDoseUnitLabels,
   mixedInfusionDrugById,
@@ -12,6 +13,7 @@ import {
   type MixedInfusionSpecies,
 } from '../../domain/mixedInfusions'
 import {
+  CalculatorDescription,
   CalculatorError,
   CalculatorForm,
   CalculatorNumberField,
@@ -53,6 +55,7 @@ const names = {
     parameterPair: 'Для расчета заполните любые 2 параметра: время, размер шприца, скорость введения раствора.',
     syringe: 'Взять шприц большего объема или сократить длительность инфузии.',
   },
+  doseSpeed: 'Скорость введения дозы',
 } as const
 
 const numberInputDefaults: NumberInputs = {
@@ -122,7 +125,7 @@ const styles = {
   },
   slotHint: {
     marginTop: '-2px',
-    color: '#b8d6da',
+    color: 'var(--app-home-muted)',
     fontSize: '12px',
     fontWeight: 700,
     lineHeight: 1.35,
@@ -131,8 +134,11 @@ const styles = {
     display: 'grid',
     gridTemplateColumns: '1fr 0.85fr 0.75fr 0.85fr',
     gap: '1px',
-    border: '1px solid #9ee3dd',
-    backgroundColor: '#9ee3dd',
+    overflow: 'hidden',
+    border: '1px solid var(--app-home-card-border)',
+    borderRadius: '14px',
+    backgroundColor: 'var(--app-home-card-border)',
+    boxShadow: 'var(--app-home-card-shadow)',
     fontSize: '11px',
     fontWeight: 700,
     lineHeight: 1.25,
@@ -140,24 +146,24 @@ const styles = {
   resultCell: {
     minHeight: '34px',
     padding: '7px 6px',
-    backgroundColor: '#0a2a3a',
-    color: '#d8f3f2',
+    backgroundColor: 'rgba(255, 255, 255, 0.78)',
+    color: 'var(--app-home-text)',
     display: 'flex',
     alignItems: 'center',
   },
   resultCellWarn: {
     minHeight: '34px',
     padding: '7px 6px',
-    backgroundColor: '#3b1c19',
-    color: '#ffb4a8',
+    backgroundColor: 'rgba(255, 245, 242, 0.9)',
+    color: '#a53d2d',
     display: 'flex',
     alignItems: 'center',
   },
   resultHeader: {
     minHeight: '30px',
     padding: '7px 6px',
-    backgroundColor: '#0d4b5f',
-    color: '#f6fbfc',
+    backgroundColor: 'rgba(47, 200, 196, 0.18)',
+    color: 'var(--app-home-text)',
     display: 'flex',
     alignItems: 'center',
   },
@@ -231,12 +237,26 @@ const hasPositiveInput = (value: string) => {
   return parsedValue !== undefined && parsedValue > 0
 }
 
-const getDoseStatusLabel = (status: MixedInfusionDrugResult['doseStatus']) => {
+const getDoseStatusLabel = (drug: MixedInfusionDrugResult) => {
+  const status = drug.doseStatus
+
   if (status === 'above') return 'выше диапазона'
   if (status === 'below') return 'ниже диапазона'
+  if (drug.isHighRate) return 'высокая доза'
 
   return '-'
 }
+
+const getDoseDigits = (value: number) => {
+  if (value > 0 && value < 0.1) return 4
+  if (value > 0 && value < 1) return 3
+
+  return 2
+}
+
+const formatDose = (value: number) => (
+  formatMixedInfusionNumber(value, getDoseDigits(value))
+)
 
 function MixedInfusionResultTable({ drugs }: { drugs: readonly MixedInfusionDrugResult[] }) {
   return (
@@ -270,9 +290,11 @@ function MixedInfusionResultTable({ drugs }: { drugs: readonly MixedInfusionDrug
         </span>,
         <span
           key={`${index}-${drug.definition.id}-status`}
-          style={drug.doseStatus === 'ok' ? styles.resultCell : styles.resultCellWarn}
+          style={drug.doseStatus === 'ok' && !drug.isHighRate
+            ? styles.resultCell
+            : styles.resultCellWarn}
         >
-          {getDoseStatusLabel(drug.doseStatus)}
+          {getDoseStatusLabel(drug)}
         </span>,
       ])}
     </section>
@@ -400,8 +422,11 @@ ${names.resultLabels.saline}: ${result.salineVolumeMl >= 0 ? `${formatMixedInfus
 
   const handleDoseChange = (slotIndex: number, value: string) => {
     const normalizedInput = value.replace(',', '.')
+    const currentDrugId = drugSlots[slotIndex]?.drugId
+    const currentDefinition = currentDrugId ? mixedInfusionDrugById.get(currentDrugId) : undefined
+    const currentDoseInputPattern = getMixedInfusionDoseInputPattern(currentDefinition)
 
-    if (!doseInputPattern.test(normalizedInput)) {
+    if (!doseInputPattern.test(normalizedInput) || !currentDoseInputPattern.test(normalizedInput)) {
       return
     }
 
@@ -414,8 +439,45 @@ ${names.resultLabels.saline}: ${result.salineVolumeMl >= 0 ? `${formatMixedInfus
 
   const doseWarnings = result?.drugs
     .filter((drug) => drug.doseStatus !== 'ok')
-    .map((drug) => `${drug.definition.name}: ${getDoseStatusLabel(drug.doseStatus)}`)
+    .map((drug) => `${drug.definition.name}: ${getDoseStatusLabel(drug)}`)
     .join('\n')
+
+  const highDoseWarning = result?.drugs
+    .filter((drug) => drug.isHighRate)
+    .map((drug) => drug.definition.name)
+    .join(', ')
+
+  const selectedDrugDoseRangesText = useMemo(() => {
+    const selectedDefinitions = drugSlots.flatMap((slot) => {
+      if (!slot.drugId) {
+        return []
+      }
+
+      const definition = mixedInfusionDrugById.get(slot.drugId)
+
+      return definition === undefined ? [] : [definition]
+    })
+
+    if (selectedDefinitions.length === 0) {
+      return undefined
+    }
+
+    if (species === undefined) {
+      return 'Выберите вид животного, чтобы увидеть подсказки по дозам.'
+    }
+
+    return `Диапазон доз выбранных препаратов:
+${selectedDefinitions.map((definition) => `${definition.name}: ${getMixedInfusionDoseHint(definition, species)}`).join('\n')}`
+  }, [drugSlots, species])
+
+  const loadingDoseRows = result?.drugs
+    .filter((drug) => drug.loadingDoses.length > 0)
+    .map((drug) => `${drug.definition.name} ${drug.definition.routeLabel ?? ''}: ${drug.loadingDoses.map((dose) => `${formatDose(dose.doseMgKg)} мг/кг = ${formatMixedInfusionNumber(dose.volumeMl)} мл`).join('; ')}`) ?? []
+
+  const loadingDosesText = loadingDoseRows.length === 0
+    ? undefined
+    : `Нагрузочные дозы:
+${loadingDoseRows.join('\n')}`
 
   return (
     <CalculatorForm title={names.title}>
@@ -463,6 +525,10 @@ ${names.resultLabels.saline}: ${result.salineVolumeMl >= 0 ? `${formatMixedInfus
         value={inputs.infusionRateMlHour}
         onChange={(e) => handleNumberChange(e, 'infusionRateMlHour')}
       />
+
+      <CalculatorDescription>
+        {names.doseSpeed}
+      </CalculatorDescription>
 
       <CalculatorError>
         {hasStartedDrugInput && !hasInfusionParameterPair ? names.errors.parameterPair : undefined}
@@ -528,9 +594,17 @@ ${names.resultLabels.saline}: ${result.salineVolumeMl >= 0 ? `${formatMixedInfus
         {doseWarnings}
       </CalculatorError>
 
+      <CalculatorError>
+        {highDoseWarning ? `Проверьте дозы: ${highDoseWarning}.` : undefined}
+      </CalculatorError>
+
+      <CalculatorPanel>{selectedDrugDoseRangesText}</CalculatorPanel>
+
       <CalculatorPanel>
         Заполните любые 2 параметра из 3: время, размер шприца и скорость введения раствора. Третий параметр будет рассчитан автоматически.
       </CalculatorPanel>
+
+      <CalculatorPanel>{loadingDosesText}</CalculatorPanel>
     </CalculatorForm>
   )
 }

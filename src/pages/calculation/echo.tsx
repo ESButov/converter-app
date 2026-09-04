@@ -1,4 +1,4 @@
-import { useMemo, useState, type ChangeEvent, type CSSProperties } from 'react'
+import { useMemo, useState, type ChangeEvent } from 'react'
 import {
   calculateDogEchoDerivedValues,
   calculateEchoDerivedValues,
@@ -21,17 +21,17 @@ import {
   rabbitEchoNorms,
 } from '../../domain/echoNorms'
 import {
-  CalculatorForm,
-  CalculatorNumberField,
-  CalculatorSelectField,
-} from '../../ui/CalculatorForm'
+  AppCalculationNumberField,
+  AppCalculationSelectField,
+} from '../../ui/AppCalculatorFields'
+import AppScreen from '../../ui/AppScreen'
 import type {
   EchoIndicatorId,
   EchoMeasurements,
   EchoNorm,
   EchoSpecies,
-  EchoStatus,
 } from '../../domain/echoNorms'
+import './echo.css'
 
 type EchoNormLookup = Partial<Record<EchoIndicatorId, EchoNorm>>
 
@@ -144,84 +144,6 @@ const formatIndicatorLabel = (id: EchoIndicatorId, norm: EchoNorm | undefined) =
   return unit ? `${label},${unit}` : label
 }
 
-const echoStyles = {
-  table: {
-    display: 'grid',
-    gap: '8px',
-  },
-  headerRow: {
-    display: 'grid',
-    gridTemplateColumns: 'minmax(72px, 1fr) 80px 108px',
-    gap: '8px',
-    alignItems: 'center',
-    color: '#b8d6da',
-    fontSize: '11px',
-    fontWeight: 700,
-    lineHeight: 1.2,
-  },
-  row: {
-    display: 'grid',
-    gridTemplateColumns: 'minmax(72px, 1fr) 80px 108px',
-    gap: '8px',
-    alignItems: 'center',
-  },
-  indicatorLabel: {
-    color: '#f6fbfc',
-    fontSize: '13px',
-    fontWeight: 700,
-    lineHeight: 1.15,
-  },
-  measurementInput: {
-    width: '100%',
-    height: '30px',
-    padding: '2px 8px',
-    border: '1.5px solid #d8f3f2',
-    borderRadius: 0,
-    backgroundColor: '#0a2a3a',
-    color: '#f6fbfc',
-    fontSize: '14px',
-    fontWeight: 700,
-    textAlign: 'center',
-    outline: 'none',
-    boxSizing: 'border-box',
-  },
-  measurementInputDisabled: {
-    color: '#87aab1',
-    opacity: 0.78,
-  },
-  normText: {
-    minHeight: '30px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '2px 6px',
-    border: '1px solid #426b75',
-    backgroundColor: '#061b27',
-    color: '#d8f3f2',
-    fontSize: '11px',
-    fontWeight: 700,
-    lineHeight: 1.15,
-    textAlign: 'center',
-    boxSizing: 'border-box',
-  },
-} as const satisfies Record<string, CSSProperties>
-
-const statusStyles = {
-  empty: {},
-  normal: {
-    borderColor: '#8fded5',
-    backgroundColor: '#103a37',
-    color: '#f0fffd',
-    boxShadow: '0 0 0 1px rgba(143, 222, 213, 0.28)',
-  },
-  abnormal: {
-    borderColor: '#ff9d8e',
-    backgroundColor: '#3a1d24',
-    color: '#fff3f0',
-    boxShadow: '0 0 0 1px rgba(255, 157, 142, 0.28)',
-  },
-} as const satisfies Record<EchoStatus, CSSProperties>
-
 export default function EchoPage() {
   const [selectedSpecies, setSelectedSpecies] = useState<EchoSpecies>()
   const [weightInput, setWeightInput] = useState('')
@@ -293,73 +215,81 @@ export default function EchoPage() {
   }
 
   return (
-    <CalculatorForm title={names.title}>
-      <CalculatorSelectField
-        label={names.labels.species}
-        options={echoSpeciesOptions}
-        value={selectedSpecies ?? ''}
-        onChange={handleSpeciesSelection}
-      />
-      <CalculatorNumberField
-        label={names.labels.weight}
-        min="0"
-        step="0.001"
-        value={weightInput}
-        onChange={handleWeightChange}
-      />
-      {strategy &&
-        <section
-          aria-label="Показатели ЭхоКГ"
-          style={echoStyles.table}
-        >
-          <div style={echoStyles.headerRow}>
-            <span>{names.columns.indicator}</span>
-            <span>{names.columns.value}</span>
-            <span>{names.columns.norm}</span>
-          </div>
-          {strategy.order.map((id) => {
-            const norm = norms?.[id]
-            const label = formatIndicatorLabel(id, norm)
-            const inputDisabled = !canCalculateNorms || norm?.input === false
-            const value = norm?.input === false
-              ? formatEchoValue(calculatedMeasurements[id])
-              : measurementInputs[id] ?? ''
-            const status = getEchoStatus(calculatedMeasurements[id], norm)
-            const fieldId = `echo-${id}`
+    <AppScreen
+      ariaLabel="Нормы ЭхоКГ VetTools"
+      backLabel="Назад на главную"
+      backTo="/home"
+      screenClassName="app-echo-screen"
+      title={names.title}
+    >
+      <form
+        className="app-calculation-scroll app-calculation-form"
+        onSubmit={(event) => event.preventDefault()}
+      >
+        <AppCalculationSelectField
+          label={names.labels.species}
+          options={echoSpeciesOptions}
+          value={selectedSpecies ?? ''}
+          onChange={handleSpeciesSelection}
+        />
+        <AppCalculationNumberField
+          label={names.labels.weight}
+          min="0"
+          step="0.001"
+          value={weightInput}
+          onChange={handleWeightChange}
+        />
+        {strategy ? (
+          <section
+            aria-label="Показатели ЭхоКГ"
+            className="app-echo-table"
+          >
+            <div className="app-echo-header-row">
+              <span>{names.columns.indicator}</span>
+              <span>{names.columns.value}</span>
+              <span>{names.columns.norm}</span>
+            </div>
+            {strategy.order.map((id) => {
+              const norm = norms?.[id]
+              const label = formatIndicatorLabel(id, norm)
+              const inputDisabled = !canCalculateNorms || norm?.input === false
+              const value = norm?.input === false
+                ? formatEchoValue(calculatedMeasurements[id])
+                : measurementInputs[id] ?? ''
+              const status = getEchoStatus(calculatedMeasurements[id], norm)
+              const fieldId = `echo-${id}`
 
-            return (
-              <div
-                key={id}
-                style={echoStyles.row}
-              >
-                <label
-                  htmlFor={fieldId}
-                  style={echoStyles.indicatorLabel}
+              return (
+                <div
+                  className="app-echo-row"
+                  key={id}
                 >
-                  {label}
-                </label>
-                <input
-                  data-status={status}
-                  disabled={inputDisabled}
-                  id={fieldId}
-                  min="0"
-                  step="0.01"
-                  style={{
-                    ...echoStyles.measurementInput,
-                    ...statusStyles[status],
-                    ...(inputDisabled ? echoStyles.measurementInputDisabled : undefined),
-                  }}
-                  type="number"
-                  value={value}
-                  onChange={(e) => handleMeasurementChange(e, id)}
-                />
-                <span style={echoStyles.normText}>
-                  {formatEchoNorm(norm) || '-'}
-                </span>
-              </div>
-            )
-          })}
-        </section>}
-    </CalculatorForm>
+                  <label
+                    className="app-echo-indicator-label"
+                    htmlFor={fieldId}
+                  >
+                    {label}
+                  </label>
+                  <input
+                    className="app-echo-measurement-input"
+                    data-status={status}
+                    disabled={inputDisabled}
+                    id={fieldId}
+                    min="0"
+                    step="0.01"
+                    type="number"
+                    value={value}
+                    onChange={(e) => handleMeasurementChange(e, id)}
+                  />
+                  <span className="app-echo-norm-text">
+                    {formatEchoNorm(norm) || '-'}
+                  </span>
+                </div>
+              )
+            })}
+          </section>
+        ) : null}
+      </form>
+    </AppScreen>
   )
 }

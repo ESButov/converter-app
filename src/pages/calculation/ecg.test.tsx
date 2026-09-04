@@ -1,5 +1,6 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import EcgPage from './ecg'
 
@@ -7,13 +8,22 @@ afterEach(() => {
   cleanup()
 })
 
+const renderEcgPage = () => {
+  render(
+    <MemoryRouter>
+      <EcgPage />
+    </MemoryRouter>,
+  )
+}
+
 describe('EcgPage', () => {
   it('calculates ECG values from mm with default calibration', async () => {
     const user = userEvent.setup()
 
-    render(<EcgPage />)
+    renderEcgPage()
 
     expect(screen.getByRole('heading', { name: 'ЭКГ' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Назад на главную' }).getAttribute('href')).toBe('/home')
     expect(screen.getByLabelText('Скорость, мм/с')).toHaveProperty('value', '50')
     expect(screen.getByLabelText('Вольтаж, мм/1 мВ')).toHaveProperty('value', '10')
     expect(Array.from(
@@ -50,7 +60,7 @@ describe('EcgPage', () => {
   it('uses selected calibration beside fields and standard calibration in conclusion', async () => {
     const user = userEvent.setup()
 
-    render(<EcgPage />)
+    renderEcgPage()
 
     await user.selectOptions(screen.getByLabelText('Вид животного'), 'cat')
     await user.selectOptions(screen.getByLabelText('Скорость, мм/с'), '25')

@@ -1,4 +1,4 @@
-import { useMemo, useState, type ChangeEvent, type CSSProperties } from 'react'
+import { useMemo, useState, type ChangeEvent } from 'react'
 import {
   calculateEcg,
   formatEcgNumber,
@@ -6,11 +6,11 @@ import {
   type EcgSpecies,
 } from '../../domain/ecg'
 import {
-  CalculatorDescription,
-  CalculatorForm,
-  CalculatorResult,
-  CalculatorSelectField,
-} from '../../ui/CalculatorForm'
+  AppCalculationResult,
+  AppCalculationSelectField,
+} from '../../ui/AppCalculatorFields'
+import AppScreen from '../../ui/AppScreen'
+import './ecg.css'
 
 type NumberFieldKey =
   | 'pAmplitudeMm'
@@ -134,52 +134,6 @@ const numberInputDefaults: NumberInputs = {
 const decimalNumberPattern = /^\d*(?:\.\d{0,2})?$/
 const speciesSet = new Set<EcgSpecies>(['dog', 'cat'])
 
-const ecgStyles = {
-  rows: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-  },
-  row: {
-    display: 'grid',
-    gridTemplateColumns: '86px minmax(76px, 1fr) minmax(98px, 1.1fr)',
-    alignItems: 'center',
-    gap: '8px',
-  },
-  rowLabel: {
-    color: '#f6fbfc',
-    fontSize: '14px',
-    fontWeight: 700,
-    lineHeight: 1.15,
-  },
-  rowInput: {
-    width: '100%',
-    height: '30px',
-    padding: '2px 8px',
-    border: '1.5px solid #d8f3f2',
-    borderRadius: 0,
-    backgroundColor: '#0a2a3a',
-    color: '#f6fbfc',
-    fontSize: '16px',
-    fontWeight: 700,
-    textAlign: 'center',
-    outline: 'none',
-    boxSizing: 'border-box',
-  },
-  rowResult: {
-    minHeight: '30px',
-    padding: '5px 8px',
-    border: '1px solid #9ee3dd',
-    backgroundColor: '#0a2a3a',
-    boxSizing: 'border-box',
-    color: '#d8f3f2',
-    fontSize: '13px',
-    fontWeight: 700,
-    lineHeight: 1.25,
-    textAlign: 'center',
-  },
-} as const satisfies Record<string, CSSProperties>
-
 type EcgMeasurementRowProps = {
   inputId: string
   label: string
@@ -247,23 +201,23 @@ function EcgMeasurementRow({
   value,
 }: EcgMeasurementRowProps) {
   return (
-    <div style={ecgStyles.row}>
+    <div className="app-ecg-row">
       <label
+        className="app-ecg-row-label"
         htmlFor={inputId}
-        style={ecgStyles.rowLabel}
       >
         {label}
       </label>
       <input
+        className="app-ecg-row-input"
         id={inputId}
         min="0"
         step="0.1"
-        style={ecgStyles.rowInput}
         type="number"
         value={value}
         onChange={onChange}
       />
-      <span style={ecgStyles.rowResult}>{result ?? '-'}</span>
+      <span className="app-ecg-row-result">{result ?? '-'}</span>
     </div>
   )
 }
@@ -403,111 +357,117 @@ export default function EcgPage() {
   }, [standardResult])
 
   return (
-    <CalculatorForm title={names.title}>
-      <CalculatorDescription>{names.sections.calibration}</CalculatorDescription>
-      <CalculatorSelectField
-        label={names.labels.species}
-        options={speciesOptions}
-        value={species ?? ''}
-        onChange={handleSpeciesChange}
-      />
-      <CalculatorSelectField
-        label={names.labels.speed}
-        options={speedOptions}
-        value={speedMmSec}
-        onChange={(e) => setSpeedMmSec(e.target.value)}
-      />
-      <CalculatorSelectField
-        label={names.labels.voltage}
-        options={voltageOptions}
-        value={voltageMmPerMv}
-        onChange={(e) => setVoltageMmPerMv(e.target.value)}
-      />
-
-      <CalculatorDescription>{names.sections.durations}</CalculatorDescription>
-      <div style={ecgStyles.rows}>
-        <EcgMeasurementRow
-          inputId="ecg-rr-interval-mm"
-          label={names.labels.rrIntervalMm}
-          result={measurementResults.rrIntervalMm}
-          value={inputs.rrIntervalMm}
-          onChange={(e) => handleNumberChange(e, 'rrIntervalMm')}
-        />
-        <EcgMeasurementRow
-          inputId="ecg-p-duration-mm"
-          label={names.labels.pDurationMm}
-          result={measurementResults.pDurationMm}
-          value={inputs.pDurationMm}
-          onChange={(e) => handleNumberChange(e, 'pDurationMm')}
-        />
-        <EcgMeasurementRow
-          inputId="ecg-qrs-duration-mm"
-          label={names.labels.qrsDurationMm}
-          result={measurementResults.qrsDurationMm}
-          value={inputs.qrsDurationMm}
-          onChange={(e) => handleNumberChange(e, 'qrsDurationMm')}
-        />
-        <EcgMeasurementRow
-          inputId="ecg-qt-interval-mm"
-          label={names.labels.qtIntervalMm}
-          result={measurementResults.qtIntervalMm}
-          value={inputs.qtIntervalMm}
-          onChange={(e) => handleNumberChange(e, 'qtIntervalMm')}
-        />
-      </div>
-
-      <CalculatorDescription>{names.sections.amplitudes}</CalculatorDescription>
-      <div style={ecgStyles.rows}>
-        <EcgMeasurementRow
-          inputId="ecg-p-amplitude-mm"
-          label={names.labels.pAmplitudeMm}
-          result={measurementResults.pAmplitudeMm}
-          value={inputs.pAmplitudeMm}
-          onChange={(e) => handleNumberChange(e, 'pAmplitudeMm')}
-        />
-        <EcgMeasurementRow
-          inputId="ecg-q-amplitude-mm"
-          label={names.labels.qAmplitudeMm}
-          result={measurementResults.qAmplitudeMm}
-          value={inputs.qAmplitudeMm}
-          onChange={(e) => handleNumberChange(e, 'qAmplitudeMm')}
-        />
-        <EcgMeasurementRow
-          inputId="ecg-r-amplitude-mm"
-          label={names.labels.rAmplitudeMm}
-          result={measurementResults.rAmplitudeMm}
-          value={inputs.rAmplitudeMm}
-          onChange={(e) => handleNumberChange(e, 'rAmplitudeMm')}
-        />
-        <EcgMeasurementRow
-          inputId="ecg-s-amplitude-mm"
-          label={names.labels.sAmplitudeMm}
-          result={measurementResults.sAmplitudeMm}
-          value={inputs.sAmplitudeMm}
-          onChange={(e) => handleNumberChange(e, 'sAmplitudeMm')}
-        />
-        <EcgMeasurementRow
-          inputId="ecg-st-deviation-mm"
-          label={names.labels.stDeviationMm}
-          result={measurementResults.stDeviationMm}
-          value={inputs.stDeviationMm}
-          onChange={(e) => handleNumberChange(e, 'stDeviationMm')}
-        />
-        <EcgMeasurementRow
-          inputId="ecg-t-amplitude-mm"
-          label={names.labels.tAmplitudeMm}
-          result={measurementResults.tAmplitudeMm}
-          value={inputs.tAmplitudeMm}
-          onChange={(e) => handleNumberChange(e, 'tAmplitudeMm')}
-        />
-      </div>
-
-      <CalculatorResult
-        align="start"
-        multiline
+    <AppScreen
+      ariaLabel="ЭКГ VetTools"
+      backLabel="Назад на главную"
+      backTo="/home"
+      screenClassName="app-ecg-screen"
+      title={names.title}
+    >
+      <form
+        className="app-calculation-scroll app-calculation-form"
+        onSubmit={(event) => event.preventDefault()}
       >
-        {resultText}
-      </CalculatorResult>
-    </CalculatorForm>
+        <h2 className="app-calculation-section-title">{names.sections.calibration}</h2>
+        <AppCalculationSelectField
+          label={names.labels.species}
+          options={speciesOptions}
+          value={species ?? ''}
+          onChange={handleSpeciesChange}
+        />
+        <AppCalculationSelectField
+          label={names.labels.speed}
+          options={speedOptions}
+          value={speedMmSec}
+          onChange={(e) => setSpeedMmSec(e.target.value)}
+        />
+        <AppCalculationSelectField
+          label={names.labels.voltage}
+          options={voltageOptions}
+          value={voltageMmPerMv}
+          onChange={(e) => setVoltageMmPerMv(e.target.value)}
+        />
+
+        <h2 className="app-calculation-section-title">{names.sections.durations}</h2>
+        <div className="app-ecg-rows">
+          <EcgMeasurementRow
+            inputId="ecg-rr-interval-mm"
+            label={names.labels.rrIntervalMm}
+            result={measurementResults.rrIntervalMm}
+            value={inputs.rrIntervalMm}
+            onChange={(e) => handleNumberChange(e, 'rrIntervalMm')}
+          />
+          <EcgMeasurementRow
+            inputId="ecg-p-duration-mm"
+            label={names.labels.pDurationMm}
+            result={measurementResults.pDurationMm}
+            value={inputs.pDurationMm}
+            onChange={(e) => handleNumberChange(e, 'pDurationMm')}
+          />
+          <EcgMeasurementRow
+            inputId="ecg-qrs-duration-mm"
+            label={names.labels.qrsDurationMm}
+            result={measurementResults.qrsDurationMm}
+            value={inputs.qrsDurationMm}
+            onChange={(e) => handleNumberChange(e, 'qrsDurationMm')}
+          />
+          <EcgMeasurementRow
+            inputId="ecg-qt-interval-mm"
+            label={names.labels.qtIntervalMm}
+            result={measurementResults.qtIntervalMm}
+            value={inputs.qtIntervalMm}
+            onChange={(e) => handleNumberChange(e, 'qtIntervalMm')}
+          />
+        </div>
+
+        <h2 className="app-calculation-section-title">{names.sections.amplitudes}</h2>
+        <div className="app-ecg-rows">
+          <EcgMeasurementRow
+            inputId="ecg-p-amplitude-mm"
+            label={names.labels.pAmplitudeMm}
+            result={measurementResults.pAmplitudeMm}
+            value={inputs.pAmplitudeMm}
+            onChange={(e) => handleNumberChange(e, 'pAmplitudeMm')}
+          />
+          <EcgMeasurementRow
+            inputId="ecg-q-amplitude-mm"
+            label={names.labels.qAmplitudeMm}
+            result={measurementResults.qAmplitudeMm}
+            value={inputs.qAmplitudeMm}
+            onChange={(e) => handleNumberChange(e, 'qAmplitudeMm')}
+          />
+          <EcgMeasurementRow
+            inputId="ecg-r-amplitude-mm"
+            label={names.labels.rAmplitudeMm}
+            result={measurementResults.rAmplitudeMm}
+            value={inputs.rAmplitudeMm}
+            onChange={(e) => handleNumberChange(e, 'rAmplitudeMm')}
+          />
+          <EcgMeasurementRow
+            inputId="ecg-s-amplitude-mm"
+            label={names.labels.sAmplitudeMm}
+            result={measurementResults.sAmplitudeMm}
+            value={inputs.sAmplitudeMm}
+            onChange={(e) => handleNumberChange(e, 'sAmplitudeMm')}
+          />
+          <EcgMeasurementRow
+            inputId="ecg-st-deviation-mm"
+            label={names.labels.stDeviationMm}
+            result={measurementResults.stDeviationMm}
+            value={inputs.stDeviationMm}
+            onChange={(e) => handleNumberChange(e, 'stDeviationMm')}
+          />
+          <EcgMeasurementRow
+            inputId="ecg-t-amplitude-mm"
+            label={names.labels.tAmplitudeMm}
+            result={measurementResults.tAmplitudeMm}
+            value={inputs.tAmplitudeMm}
+            onChange={(e) => handleNumberChange(e, 'tAmplitudeMm')}
+          />
+        </div>
+
+        <AppCalculationResult>{resultText}</AppCalculationResult>
+      </form>
+    </AppScreen>
   )
 }

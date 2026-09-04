@@ -1,0 +1,391 @@
+.app-toxic-screen {
+  gap: 14px;
+}
+
+.app-toxic-back-link {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+  border: 0;
+  color: var(--app-home-accent-strong);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.app-toxic-back-link::before {
+  content: '‹';
+  font-size: 22px;
+  line-height: 0.7;
+}
+
+.app-toxic-back-link:hover,
+.app-toxic-back-link:focus-visible {
+  color: var(--app-home-text);
+}
+
+.app-toxic-back-link:focus-visible {
+  outline: 3px solid rgba(47, 200, 196, 0.28);
+  outline-offset: 2px;
+}
+
+.app-toxic-scroll {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding: 2px 2px 28px;
+  scroll-padding-bottom: 28px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(47, 200, 196, 0.55) transparent;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.app-toxic-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.app-toxic-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(47, 200, 196, 0.55);
+}
+
+.app-toxic-search-panel {
+  position: sticky;
+  top: -2px;
+  z-index: 4;
+  display: grid;
+  gap: 8px;
+  margin: -2px -2px 0;
+  padding: 2px 2px 10px;
+  background: linear-gradient(180deg, var(--app-home-screen-top) 0, rgba(216, 245, 240, 0.95) 100%);
+}
+
+.app-toxic-toolbar {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  gap: 8px;
+  align-items: end;
+}
+
+.app-toxic-search-label {
+  display: grid;
+  gap: 6px;
+  color: var(--app-home-text);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.app-toxic-search-label input {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.82);
+  box-sizing: border-box;
+  color: var(--app-home-text);
+  font: inherit;
+  outline: none;
+}
+
+.app-toxic-search-label input:focus {
+  border-color: rgba(10, 166, 162, 0.72);
+  box-shadow: 0 0 0 3px rgba(47, 200, 196, 0.16);
+}
+
+.app-toxic-filter-button {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--app-home-accent-strong);
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.app-toxic-filter-button[data-active="true"] {
+  border-color: rgba(10, 166, 162, 0.72);
+  background: rgba(47, 200, 196, 0.14);
+}
+
+.app-toxic-filter-menu {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  z-index: 8;
+  display: grid;
+  gap: 6px;
+  width: min(260px, 100%);
+  padding: 8px;
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 14px;
+  background: #f8ffff;
+  box-shadow: var(--app-home-card-shadow);
+}
+
+.app-toxic-filter-menu__title {
+  padding: 2px 8px 4px;
+  color: var(--app-home-muted);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.app-toxic-filter-menu__option {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--app-home-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: left;
+}
+
+.app-toxic-filter-menu__option[data-active="true"] {
+  border-color: rgba(10, 166, 162, 0.48);
+  background: rgba(47, 200, 196, 0.12);
+}
+
+.app-toxic-result-count,
+.app-toxic-safety-note,
+.app-toxic-detail-empty {
+  color: var(--app-home-muted);
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.app-toxic-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-toxic-card {
+  min-height: 58px;
+}
+
+.app-toxic-card__body {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.app-toxic-card__title {
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.15;
+}
+
+.app-toxic-card__group {
+  overflow-wrap: anywhere;
+  color: var(--app-home-muted);
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.25;
+}
+
+.app-toxic-empty {
+  display: block;
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 14px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.66);
+  color: var(--app-home-text);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.3;
+  text-align: center;
+  box-shadow: var(--app-home-card-shadow);
+}
+
+.app-toxic-safety-note {
+  margin: 4px 0 0;
+}
+
+.app-toxic-detail-card,
+.app-toxic-detail-section {
+  flex: 0 0 auto;
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: var(--app-home-card-shadow);
+}
+
+.app-toxic-detail-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+}
+
+.app-toxic-detail-card__group {
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(47, 200, 196, 0.14);
+  color: var(--app-home-accent-strong);
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.app-toxic-detail-card h2,
+.app-toxic-detail-section h2 {
+  margin: 0;
+  color: var(--app-home-text);
+  font-weight: 850;
+  letter-spacing: 0;
+}
+
+.app-toxic-detail-card h2 {
+  font-size: 20px;
+  line-height: 1.12;
+}
+
+.app-toxic-detail-card p {
+  margin: 0;
+  color: var(--app-home-muted);
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.app-toxic-detail-card__links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.app-toxic-calculator-link {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border: 1px solid rgba(10, 166, 162, 0.58);
+  border-radius: 12px;
+  background: rgba(47, 200, 196, 0.16);
+  color: var(--app-home-text);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+}
+
+.app-toxic-detail-section {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.app-toxic-detail-section h2 {
+  font-size: 15px;
+  line-height: 1.18;
+}
+
+.app-toxic-detail-list,
+.app-toxic-source-list {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--app-home-text);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.app-toxic-dose-list {
+  display: grid;
+  gap: 8px;
+}
+
+.app-toxic-dose-row {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(47, 200, 196, 0.08);
+}
+
+.app-toxic-dose-row h3,
+.app-toxic-dose-row p {
+  margin: 0;
+}
+
+.app-toxic-dose-row h3 {
+  color: var(--app-home-accent-strong);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.app-toxic-dose-row p,
+.app-toxic-dose-row span {
+  color: var(--app-home-text);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.app-toxic-dose-row span {
+  color: var(--app-home-muted);
+}
+
+.app-toxic-inline-links {
+  margin: 0;
+  color: var(--app-home-text);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.app-toxic-inline-links a {
+  color: var(--app-home-accent-strong);
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.app-toxic-source-list a {
+  color: var(--app-home-accent-strong);
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.app-toxic-calculator-link:hover,
+.app-toxic-calculator-link:focus-visible,
+.app-toxic-inline-links a:hover,
+.app-toxic-inline-links a:focus-visible,
+.app-toxic-source-list a:hover,
+.app-toxic-source-list a:focus-visible {
+  color: var(--app-home-text);
+}
+
+@media (max-width: 480px) {
+  .app-toxic-search-panel {
+    top: -2px;
+  }
+}

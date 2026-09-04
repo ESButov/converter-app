@@ -69,6 +69,45 @@ describe('mixed infusion calculations', () => {
     expect(calculateMixedInfusionDrugVolume(lidocaine!, 20, 10, 1)).toBeCloseTo(0.12)
   })
 
+  it('calculates FLK drugs inside mixed infusions', () => {
+    const result = calculateMixedInfusion({
+      durationHours: 3,
+      drugs: [
+        { drugId: 'fentanyl', dose: 0.02 },
+        { drugId: 'l-2', dose: 17 },
+        { drugId: 'ketamine', dose: 10 },
+      ],
+      syringeSizeMl: 20,
+      weightKg: 34.5,
+    }, 'dog')
+
+    expect(result?.drugs[0]?.volumeMl).toBeCloseTo(2.484)
+    expect(result?.drugs[1]?.volumeMl).toBeCloseTo(5.2785)
+    expect(result?.drugs[2]?.volumeMl).toBeCloseTo(0.621)
+    expect(result?.drugVolumeMl).toBeCloseTo(8.3835)
+    expect(result?.salineVolumeMl).toBeCloseTo(11.6165)
+    expect(result?.finalRateMlHour).toBeCloseTo(6.6667)
+    expect(result?.drugs[0]?.loadingDoses[0]?.volumeMl).toBeCloseTo(1.38)
+    expect(result?.drugs[1]?.loadingDoses[2]?.volumeMl).toBeCloseTo(1.725)
+    expect(result?.drugs[2]?.loadingDoses[1]?.volumeMl).toBeCloseTo(0.1725)
+  })
+
+  it('marks FLK high rates separately from the dose range', () => {
+    const result = calculateMixedInfusion({
+      durationHours: 1,
+      drugs: [
+        { drugId: 'fentanyl', dose: 0.09 },
+        { drugId: 'ketamine', dose: 10 },
+      ],
+      syringeSizeMl: 20,
+      weightKg: 10,
+    }, 'dog')
+
+    expect(result?.drugs[0]?.doseStatus).toBe('ok')
+    expect(result?.drugs[0]?.isHighRate).toBe(true)
+    expect(result?.drugs[1]?.isHighRate).toBe(false)
+  })
+
   it('requires at least two filled drugs', () => {
     const result = calculateMixedInfusion({
       durationHours: 1,
@@ -101,7 +140,9 @@ describe('mixed infusion calculations', () => {
     const lidocaine = mixedInfusionDrugById.get('l-2')
 
     expect(lidocaine).toBeDefined()
-    expect(getMixedInfusionDoseHint(lidocaine!, 'cat')).toBe('Кошка: 10-30 мкг/кг/мин')
-    expect(getMixedInfusionDoseHint(lidocaine!, 'dog')).toBe('Собака: 20-80 мкг/кг/мин')
+    expect(getMixedInfusionDoseHint(lidocaine!, 'cat')).toBe('Кошка: 0.6-1.8 мг/кг/ч (10-30 мкг/кг/мин)')
+    expect(getMixedInfusionDoseHint(lidocaine!, 'dog')).toBe('Собака: 1.2-4.8 мг/кг/ч (20-80 мкг/кг/мин)')
+    expect(getMixedInfusionDoseHint(mixedInfusionDrugById.get('fentanyl')!, 'dog')).toBe('Собака: 0.0012-0.008 мг/кг/ч (0.02-0.10 мкг/кг/мин)')
+    expect(getMixedInfusionDoseHint(mixedInfusionDrugById.get('ketamine')!, 'dog')).toBe('Собака: 0.12-1.2 мг/кг/ч (2-20 мкг/кг/мин)')
   })
 })

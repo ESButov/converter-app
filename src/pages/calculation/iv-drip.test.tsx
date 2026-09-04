@@ -1,5 +1,6 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import IvDripPage from './iv-drip'
 
@@ -7,13 +8,23 @@ afterEach(() => {
   cleanup()
 })
 
+const renderIvDripPage = () => {
+  render(
+    <MemoryRouter>
+      <IvDripPage />
+    </MemoryRouter>,
+  )
+}
+
 describe('IvDripPage', () => {
   it('calculates drip tempo from volume and infusion time', async () => {
     const user = userEvent.setup()
 
-    render(<IvDripPage />)
+    renderIvDripPage()
 
     expect(screen.getByRole('heading', { name: 'Расчет капельного введения' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Назад на главную' }).getAttribute('href')).toBe('/home')
+    expect(screen.getByRole('navigation', { name: 'Основная навигация' })).toBeTruthy()
     expect(screen.queryByText('Макрокапельница (стандарт 20)')).toBeNull()
 
     await user.type(screen.getByLabelText('Общий объем, мл'), '500')
@@ -23,13 +34,13 @@ describe('IvDripPage', () => {
     const pumpText = screen.getByText(/Инфузомат: 125 мл\/ч/)
 
     expect(visualization.compareDocumentPosition(pumpText)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
-    expect(screen.getByText('42 кап/мин · 1.4 сек/капля')).toBeTruthy()
+    expect(screen.getByText(/Темп: 42 кап\/мин/)).toBeTruthy()
   })
 
   it('shows and hides drop factor help by question button or outside click', async () => {
     const user = userEvent.setup()
 
-    render(<IvDripPage />)
+    renderIvDripPage()
 
     const helpButton = screen.getByRole('button', { name: 'Показать справку по Drop Factor' })
 
@@ -59,13 +70,13 @@ describe('IvDripPage', () => {
   it('calculates infusion time when speed is filled and time is empty', async () => {
     const user = userEvent.setup()
 
-    render(<IvDripPage />)
+    renderIvDripPage()
 
     await user.type(screen.getByLabelText('Общий объем, мл'), '500')
     await user.type(screen.getByLabelText('Скорость инфузии'), '40')
     await user.selectOptions(screen.getByLabelText('Единица скорости'), 'dropsPerMinute')
 
-    expect(screen.getByText('40 кап/мин · 1.5 сек/капля')).toBeTruthy()
+    expect(screen.getByText(/Темп: 40 кап\/мин/)).toBeTruthy()
     expect(screen.getByText(/Время: 4 ч 10 мин/)).toBeTruthy()
   })
 })

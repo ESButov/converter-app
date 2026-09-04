@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties } from 'react'
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from 'react'
 import {
   calculateIvDripRate,
   dropFactorOptions,
@@ -6,13 +6,8 @@ import {
   formatInfusionNumber,
   type InfusionSpeedUnit,
 } from '../../domain/ivDripRate'
-import {
-  CalculatorDescription,
-  CalculatorForm,
-  CalculatorNumberField,
-  CalculatorResult,
-  CalculatorSelectField,
-} from '../../ui/CalculatorForm'
+import AppScreen from '../../ui/AppScreen'
+import './iv-drip.css'
 
 type NumberFieldKey = 'volumeMl' | 'timeHours' | 'timeMinutes' | 'speed'
 type NumberInputs = Record<NumberFieldKey, string>
@@ -28,8 +23,8 @@ const names = {
     dropFactor: 'Фактор капель / Drop Factor',
   },
   descriptions: {
-    time: 'Если время оставить пустым, оно будет рассчитано по общему объему и скорости.',
-    speed: 'Если скорость оставить пустой, она будет рассчитана по общему объему и времени.',
+    time: 'Если время не заполнено, расчет проходит по объему и скорости.',
+    speed: 'Если скорость не заполнена, расчет проходит объему и времени.',
   },
   factorColumns: {
     system: 'Тип системы',
@@ -85,156 +80,121 @@ const isSpeedUnit = (value: string): value is InfusionSpeedUnit => (
   value === 'mlPerHour' || value === 'dropsPerMinute'
 )
 
-const dripStyles = {
-  inlineFields: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '10px',
-  },
-  factorTable: {
-    display: 'grid',
-    gridTemplateColumns: '1.3fr 58px 1.7fr',
-    gap: '1px',
-    border: '1px solid #9ee3dd',
-    backgroundColor: '#9ee3dd',
-    color: '#f6fbfc',
-    fontSize: '10px',
-    fontWeight: 700,
-    lineHeight: 1.25,
-  },
-  factorCell: {
-    padding: '6px',
-    backgroundColor: '#0a2a3a',
-  },
-  factorHeader: {
-    padding: '6px',
-    backgroundColor: '#0d4b5f',
-    color: '#f6fbfc',
-  },
-  factorControl: {
-    position: 'relative',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '9px',
-    fontSize: '16px',
-    lineHeight: '1.2',
-    fontWeight: 700,
-  },
-  factorLabelRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '10px',
-    color: '#f6fbfc',
-  },
-  factorSelect: {
-    width: '100%',
-    height: '30px',
-    padding: '2px 10px',
-    border: '1.5px solid #d8f3f2',
-    borderRadius: 0,
-    backgroundColor: '#0a2a3a',
-    color: '#f6fbfc',
-    fontSize: '16px',
-    fontWeight: 700,
-    textAlign: 'center',
-    outline: 'none',
-    boxSizing: 'border-box',
-  },
-  helpButton: {
-    width: '24px',
-    height: '24px',
-    padding: 0,
-    border: '1.5px solid #d8f3f2',
-    borderRadius: '50%',
-    backgroundColor: '#0a2a3a',
-    color: '#d8f3f2',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: 800,
-    lineHeight: 1,
-  },
-  helpPopup: {
-    position: 'absolute',
-    top: '60px',
-    right: 0,
-    left: 0,
-    zIndex: 5,
-    padding: '10px',
-    border: '1.5px solid #d8f3f2',
-    backgroundColor: '#082332',
-    boxShadow: '0 12px 28px rgba(0, 0, 0, 0.36)',
-  },
-  visualization: {
-    position: 'relative',
-    height: '156px',
-    border: '1px solid #9ee3dd',
-    backgroundColor: '#061b27',
-    overflow: 'hidden',
-  },
-  bottle: {
-    position: 'absolute',
-    top: '14px',
-    left: '50%',
-    width: '78px',
-    height: '56px',
-    border: '2px solid #d8f3f2',
-    borderRadius: '5px 5px 10px 10px',
-    transform: 'translateX(-50%)',
-    backgroundColor: '#0a2a3a',
-  },
-  bottleFluid: {
-    position: 'absolute',
-    right: '7px',
-    bottom: '7px',
-    left: '7px',
-    height: '25px',
-    backgroundColor: '#8fded5',
-    opacity: 0.6,
-  },
-  line: {
-    position: 'absolute',
-    top: '72px',
-    left: '50%',
-    width: '2px',
-    height: '72px',
-    backgroundColor: '#d8f3f2',
-    transform: 'translateX(-50%)',
-  },
-  chamber: {
-    position: 'absolute',
-    top: '86px',
-    left: '50%',
-    width: '30px',
-    height: '48px',
-    border: '2px solid #d8f3f2',
-    borderRadius: '14px',
-    transform: 'translateX(-50%)',
-    backgroundColor: 'rgba(10, 42, 58, 0.7)',
-  },
-  drop: {
-    position: 'absolute',
-    top: '76px',
-    left: '50%',
-    width: '12px',
-    height: '16px',
-    borderRadius: '10px 10px 10px 2px',
-    backgroundColor: '#8fded5',
-    transform: 'translateX(-50%) rotate(45deg)',
-    boxShadow: '0 0 10px rgba(143, 222, 213, 0.58)',
-  },
-  rhythm: {
-    position: 'absolute',
-    right: '14px',
-    bottom: '12px',
-    left: '14px',
-    color: '#d8f3f2',
-    fontSize: '12px',
-    fontWeight: 700,
-    lineHeight: 1.25,
-    textAlign: 'center',
-  },
-} as const satisfies Record<string, CSSProperties>
+type NumberFieldProps = {
+  label: string
+  min: string
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void
+  step: string
+  value: string
+}
+
+type SelectFieldProps = {
+  label: string
+  onChange: (event: ChangeEvent<HTMLSelectElement>) => void
+  options: readonly {
+    id: string
+    label: string
+    value: string
+  }[]
+  value: string | number
+}
+
+type TimeFieldProps = {
+  hoursValue: string
+  minutesValue: string
+  onHoursChange: (event: ChangeEvent<HTMLInputElement>) => void
+  onMinutesChange: (event: ChangeEvent<HTMLInputElement>) => void
+}
+
+function IvDripTimeField({
+  hoursValue,
+  minutesValue,
+  onHoursChange,
+  onMinutesChange,
+}: TimeFieldProps) {
+  return (
+    <section
+      aria-labelledby="iv-drip-time-title"
+      className="app-iv-drip-time-card"
+      role="group"
+    >
+      <h2 id="iv-drip-time-title">Время инфузии</h2>
+      <div className="app-iv-drip-time-grid">
+        <label>
+          <span>часы</span>
+          <input
+            aria-label={names.labels.timeHours}
+            min="0"
+            onChange={onHoursChange}
+            step="1"
+            type="number"
+            value={hoursValue}
+          />
+        </label>
+        <label>
+          <span>минуты</span>
+          <input
+            aria-label={names.labels.timeMinutes}
+            min="0"
+            onChange={onMinutesChange}
+            step="1"
+            type="number"
+            value={minutesValue}
+          />
+        </label>
+      </div>
+    </section>
+  )
+}
+
+function IvDripNumberField({
+  label,
+  min,
+  onChange,
+  step,
+  value,
+}: NumberFieldProps) {
+  return (
+    <label className="app-iv-drip-field">
+      <span>{label}</span>
+      <input
+        min={min}
+        onChange={onChange}
+        step={step}
+        type="number"
+        value={value}
+      />
+    </label>
+  )
+}
+
+function IvDripSelectField({
+  label,
+  onChange,
+  options,
+  value,
+}: SelectFieldProps) {
+  return (
+    <label className="app-iv-drip-field">
+      <span>{label}</span>
+      <select onChange={onChange} value={value}>
+        {options.map((option) => (
+          <option
+            id={option.id}
+            key={option.id}
+            value={option.value}
+          >
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
+function IvDripNote({ children }: { children: ReactNode }) {
+  return <span className="app-iv-drip-note">{children}</span>
+}
 
 export default function IvDripPage() {
   const [inputs, setInputs] = useState<NumberInputs>(numberInputDefaults)
@@ -317,156 +277,160 @@ ${names.resultLabels.time}: ${formatInfusionDuration(result.totalTimeMinutes)}
 ${names.resultLabels.factor}: ${dropFactor} кап/мл`
 
   return (
-    <CalculatorForm title={names.title}>
+    <AppScreen
+      ariaLabel="Расчет капельного введения VetTools"
+      backLabel="Назад на главную"
+      backTo="/home"
+      screenClassName="app-iv-drip-screen"
+      title={names.title}
+    >
       <style>
         {`@keyframes infusionDrop {
-          0% { opacity: 0; top: 76px; }
+          0% { opacity: 0; top: 166px; }
           12% { opacity: 1; }
-          78% { opacity: 1; top: 120px; }
-          100% { opacity: 0; top: 120px; }
+          78% { opacity: 1; top: 194px; }
+          100% { opacity: 0; top: 194px; }
         }`}
       </style>
 
-      <CalculatorNumberField
-        label={names.labels.volume}
-        min="0"
-        step="0.01"
-        value={inputs.volumeMl}
-        onChange={(e) => handleNumberChange(e, 'volumeMl')}
-      />
-
-      <CalculatorDescription>{names.descriptions.time}</CalculatorDescription>
-      <div style={dripStyles.inlineFields}>
-        <CalculatorNumberField
-          label={names.labels.timeHours}
-          min="0"
-          step="1"
-          value={inputs.timeHours}
-          onChange={(e) => handleNumberChange(e, 'timeHours')}
-        />
-        <CalculatorNumberField
-          label={names.labels.timeMinutes}
-          min="0"
-          step="1"
-          value={inputs.timeMinutes}
-          onChange={(e) => handleNumberChange(e, 'timeMinutes')}
-        />
-      </div>
-
-      <CalculatorDescription>{names.descriptions.speed}</CalculatorDescription>
-      <CalculatorNumberField
-        label={names.labels.speed}
-        min="0"
-        step="0.01"
-        value={inputs.speed}
-        onChange={(e) => handleNumberChange(e, 'speed')}
-      />
-      <CalculatorSelectField
-        label={names.labels.speedUnit}
-        options={speedUnitOptions}
-        value={speedUnit}
-        onChange={handleSpeedUnitChange}
-      />
-
-      <div
-        ref={factorHelpRef}
-        style={dripStyles.factorControl}
+      <form
+        className="app-iv-drip-scroll"
+        onSubmit={(event) => event.preventDefault()}
       >
-        <span style={dripStyles.factorLabelRow}>
-          <label htmlFor="drop-factor-select">
-            {names.labels.dropFactor}
-          </label>
-          <button
-            aria-controls="drop-factor-help"
-            aria-expanded={isFactorHelpOpen}
-            aria-label="Показать справку по Drop Factor"
-            style={dripStyles.helpButton}
-            type="button"
-            onClick={() => setIsFactorHelpOpen((isOpen) => !isOpen)}
-          >
-            ?
-          </button>
-        </span>
-        <select
-          id="drop-factor-select"
-          style={dripStyles.factorSelect}
-          value={dropFactor}
-          onChange={handleDropFactorChange}
-        >
-          {dropFactorSelectOptions.map((option) => (
-            <option
-              id={option.id}
-              key={option.id}
-              value={option.value}
+            <IvDripNumberField
+              label={names.labels.volume}
+              min="0"
+              step="0.01"
+              value={inputs.volumeMl}
+              onChange={(e) => handleNumberChange(e, 'volumeMl')}
+            />
+
+            <IvDripNote>{names.descriptions.time}</IvDripNote>
+            <IvDripTimeField
+              hoursValue={inputs.timeHours}
+              minutesValue={inputs.timeMinutes}
+              onHoursChange={(e) => handleNumberChange(e, 'timeHours')}
+              onMinutesChange={(e) => handleNumberChange(e, 'timeMinutes')}
+            />
+
+            <IvDripNote>{names.descriptions.speed}</IvDripNote>
+            <IvDripNumberField
+              label={names.labels.speed}
+              min="0"
+              step="0.01"
+              value={inputs.speed}
+              onChange={(e) => handleNumberChange(e, 'speed')}
+            />
+            <IvDripSelectField
+              label={names.labels.speedUnit}
+              options={speedUnitOptions}
+              value={speedUnit}
+              onChange={handleSpeedUnitChange}
+            />
+
+            <div
+              className="app-iv-drip-factor-control"
+              ref={factorHelpRef}
             >
-              {option.label}
-            </option>
-          ))}
-        </select>
-
-        {isFactorHelpOpen &&
-          <div
-            aria-label="Справка по Drop Factor"
-            id="drop-factor-help"
-            role="dialog"
-            style={dripStyles.helpPopup}
-          >
-            <span style={dripStyles.factorTable}>
-              <span style={dripStyles.factorHeader}>{names.factorColumns.system}</span>
-              <span style={dripStyles.factorHeader}>{names.factorColumns.factor}</span>
-              <span style={dripStyles.factorHeader}>{names.factorColumns.usage}</span>
-              {dropFactorOptions.flatMap((option) => [
-                <span
-                  key={`${option.value}-system`}
-                  style={dripStyles.factorCell}
+              <span className="app-iv-drip-factor-label-row">
+                <label htmlFor="drop-factor-select">
+                  {names.labels.dropFactor}
+                </label>
+                <button
+                  aria-controls="drop-factor-help"
+                  aria-expanded={isFactorHelpOpen}
+                  aria-label="Показать справку по Drop Factor"
+                  className="app-iv-drip-help-button"
+                  type="button"
+                  onClick={() => setIsFactorHelpOpen((isOpen) => !isOpen)}
                 >
-                  {option.system}
-                </span>,
-                <span
-                  key={`${option.value}-factor`}
-                  style={dripStyles.factorCell}
-                >
-                  {option.value}
-                </span>,
-                <span
-                  key={`${option.value}-usage`}
-                  style={dripStyles.factorCell}
-                >
-                  {option.usage}
-                </span>,
-              ])}
-            </span>
-          </div>}
-      </div>
+                  ?
+                </button>
+              </span>
+              <select
+                id="drop-factor-select"
+                className="app-iv-drip-select"
+                value={dropFactor}
+                onChange={handleDropFactorChange}
+              >
+                {dropFactorSelectOptions.map((option) => (
+                  <option
+                    id={option.id}
+                    key={option.id}
+                    value={option.value}
+                  >
+                    {option.label}
+                  </option>
+                ))}
+              </select>
 
-      {result !== undefined &&
-        <section
-          aria-label="Визуализация капельного введения"
-          style={dripStyles.visualization}
-        >
-          <span style={dripStyles.bottle}>
-            <span style={dripStyles.bottleFluid} />
-          </span>
-          <span style={dripStyles.line} />
-          <span style={dripStyles.chamber} />
-          <span
-            aria-hidden="true"
-            style={{
-              ...dripStyles.drop,
-              animation: `infusionDrop ${dropAnimationDuration} linear infinite`,
-            }}
-          />
-          <span style={dripStyles.rhythm}>
-            {result.roundedDropsPerMinute} кап/мин · {formatInfusionNumber(result.secondsPerDrop)} сек/капля
-          </span>
-        </section>}
+              {isFactorHelpOpen ? (
+                <div
+                  aria-label="Справка по Drop Factor"
+                  className="app-iv-drip-help-popup"
+                  id="drop-factor-help"
+                  role="dialog"
+                >
+                  <span className="app-iv-drip-factor-table">
+                    <span className="app-iv-drip-factor-header">{names.factorColumns.system}</span>
+                    <span className="app-iv-drip-factor-header">{names.factorColumns.factor}</span>
+                    <span className="app-iv-drip-factor-header">{names.factorColumns.usage}</span>
+                    {dropFactorOptions.flatMap((option) => [
+                      <span
+                        className="app-iv-drip-factor-cell"
+                        key={`${option.value}-system`}
+                      >
+                        {option.system}
+                      </span>,
+                      <span
+                        className="app-iv-drip-factor-cell"
+                        key={`${option.value}-factor`}
+                      >
+                        {option.value}
+                      </span>,
+                      <span
+                        className="app-iv-drip-factor-cell"
+                        key={`${option.value}-usage`}
+                      >
+                        {option.usage}
+                      </span>,
+                    ])}
+                  </span>
+                </div>
+              ) : null}
+            </div>
 
-      <CalculatorResult
-        align="start"
-        multiline
-      >
-        {resultText}
-      </CalculatorResult>
-    </CalculatorForm>
+            {result !== undefined ? (
+              <section
+                aria-label="Визуализация капельного введения"
+                className="app-iv-drip-visualization"
+              >
+                <span className="app-iv-drip-bag">
+                  <span className="app-iv-drip-bag-cap" aria-hidden="true" />
+                  <span className="app-iv-drip-bottle-fluid" />
+                  <span className="app-iv-drip-bag-glare" aria-hidden="true" />
+                </span>
+                <span className="app-iv-drip-port" aria-hidden="true" />
+                <span className="app-iv-drip-line app-iv-drip-line--upper" aria-hidden="true" />
+                <span className="app-iv-drip-chamber" />
+                <span
+                  aria-hidden="true"
+                  className="app-iv-drip-drop"
+                  style={{
+                    animation: `infusionDrop ${dropAnimationDuration} linear infinite`,
+                  }}
+                />
+                <span className="app-iv-drip-chamber-fluid" aria-hidden="true" />
+                <span className="app-iv-drip-line app-iv-drip-line--lower" aria-hidden="true" />
+              </section>
+            ) : null}
+
+            {resultText !== undefined ? (
+              <section className="app-iv-drip-result" aria-label="Результат расчета">
+                {resultText}
+              </section>
+            ) : null}
+          </form>
+    </AppScreen>
   )
 }

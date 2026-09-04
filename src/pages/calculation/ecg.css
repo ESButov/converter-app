@@ -1,0 +1,79 @@
+.app-ecg-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.app-ecg-row {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 82px minmax(74px, 0.9fr) minmax(102px, 1.1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: var(--app-home-card-shadow);
+}
+
+.app-ecg-row-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--app-home-text);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.15;
+}
+
+.app-ecg-row-input,
+.app-ecg-row-result {
+  min-width: 0;
+  min-height: 36px;
+  border-radius: 12px;
+  box-sizing: border-box;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.app-ecg-row-input {
+  width: 100%;
+  padding: 0 8px;
+  border: 1px solid var(--app-home-card-border);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--app-home-text);
+  font: inherit;
+  outline: none;
+}
+
+.app-ecg-row-input:focus {
+  border-color: rgba(10, 166, 162, 0.72);
+  box-shadow: 0 0 0 3px rgba(47, 200, 196, 0.16);
+}
+
+.app-ecg-row-result {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 7px;
+  border: 1px solid rgba(116, 204, 199, 0.34);
+  background: rgba(255, 255, 255, 0.58);
+  color: var(--app-home-muted);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 480px) {
+  .app-ecg-row {
+    grid-template-columns: 76px minmax(68px, 0.8fr) minmax(92px, 1fr);
+    gap: 6px;
+    padding: 9px;
+  }
+
+  .app-ecg-row-label,
+  .app-ecg-row-input,
+  .app-ecg-row-result {
+    font-size: 11px;
+  }
+}

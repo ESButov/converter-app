@@ -1,78 +1,191 @@
-export type PdrGroupId = 'cat' | 'dogGiant' | 'dogLarge' | 'dogMedium' | 'dogSmall'
+export type PdrGroupId =
+  | 'cat'
+  | 'catMaineCoon'
+  | 'dogGiant'
+  | 'dogLarge'
+  | 'dogMedium'
+  | 'dogSmall'
+  | 'dogToy'
+
+export type PdrStageId = 'afterFiveWeeks' | 'beforeFiveWeeks'
+
+export type PdrFormula =
+  | {
+    kind: 'constantMinusMeasurementOverDivisor'
+    constantMm: number
+    divisor: number
+    measurementLabel: string
+    measurementShortLabel: string
+    recommendedDbpMax: number
+    recommendedDbpMin: number
+  }
+  | {
+    kind: 'interceptMinusSlopeMeasurement'
+    interceptDays: number
+    measurementLabel: string
+    measurementShortLabel: string
+    recommendedDbpMax: number
+    recommendedDbpMin: number
+    slopePerMm: number
+  }
 
 export type PdrGroup = {
-  bpCoefficient: number
-  bpConstantMm: number
+  formulas: Record<PdrStageId, PdrFormula>
   id: PdrGroupId
   label: string
-  recommendedDbpMax: number
-  recommendedDbpMin: number
 }
 
 export type PdrInput = {
   bpMm?: number
   examDateIso?: string
   groupId?: PdrGroupId
+  measurementMm?: number
+  stageId?: PdrStageId
 }
 
 export type PdrResult = {
-  bpMm: number
   daysBeforeParturition: number
   dueDateIso: string
+  formula: PdrFormula
+  formulaText: string
   group: PdrGroup
   isOutsideRecommendedPeriod: boolean
+  measurementMm: number
   rangeEndIso: string
   rangeStartIso: string
   roundedDaysBeforeParturition: number
+  stage: PdrStage
 }
+
+export type PdrStage = {
+  id: PdrStageId
+  label: string
+}
+
+export const pdrStages = [
+  {
+    id: 'beforeFiveWeeks',
+    label: 'До 5 недель',
+  },
+  {
+    id: 'afterFiveWeeks',
+    label: 'После 5 недель',
+  },
+] as const satisfies readonly PdrStage[]
+
+export const pdrStageLabels = {
+  afterFiveWeeks: 'После 5 недель',
+  beforeFiveWeeks: 'До 5 недель',
+} as const satisfies Record<PdrStageId, string>
+
+const earlyMeasurement = {
+  measurementLabel: 'Внутренний диаметр хориальной полости',
+  measurementShortLabel: 'ВДХП',
+} as const
+
+const lateMeasurement = {
+  measurementLabel: 'Бипариетальный диаметр',
+  measurementShortLabel: 'БПД',
+} as const
+
+const constantFormula = (
+  constantMm: number,
+  divisor: number,
+  measurement: typeof earlyMeasurement | typeof lateMeasurement,
+  recommendedDbpMin: number,
+  recommendedDbpMax: number,
+): PdrFormula => ({
+  kind: 'constantMinusMeasurementOverDivisor',
+  constantMm,
+  divisor,
+  ...measurement,
+  recommendedDbpMax,
+  recommendedDbpMin,
+})
+
+const linearFormula = (
+  interceptDays: number,
+  slopePerMm: number,
+  measurement: typeof earlyMeasurement | typeof lateMeasurement,
+  recommendedDbpMin: number,
+  recommendedDbpMax: number,
+): PdrFormula => ({
+  kind: 'interceptMinusSlopeMeasurement',
+  interceptDays,
+  slopePerMm,
+  ...measurement,
+  recommendedDbpMax,
+  recommendedDbpMin,
+})
 
 export const pdrGroups = [
   {
-    bpCoefficient: 0.47,
-    bpConstantMm: 23.39,
     id: 'cat',
     label: 'Кошка',
-    recommendedDbpMax: 25,
-    recommendedDbpMin: 0,
+    formulas: {
+      beforeFiveWeeks: constantFormula(62.03, 1.1, earlyMeasurement, 26, 39),
+      afterFiveWeeks: constantFormula(23.39, 0.47, lateMeasurement, 0, 32),
+    },
   },
   {
-    bpCoefficient: 0.61,
-    bpConstantMm: 25.11,
+    id: 'catMaineCoon',
+    label: 'Кошка, мейн-кун',
+    formulas: {
+      beforeFiveWeeks: linearFormula(57.9, 0.79, earlyMeasurement, 26, 39),
+      afterFiveWeeks: linearFormula(49.3, 1.86, lateMeasurement, 0, 32),
+    },
+  },
+  {
+    id: 'dogToy',
+    label: 'Собака карликовая, до 5 кг',
+    formulas: {
+      beforeFiveWeeks: linearFormula(44.04, 0.62887, earlyMeasurement, 26, 41),
+      afterFiveWeeks: linearFormula(39.7, 1.619, lateMeasurement, 6, 23),
+    },
+  },
+  {
     id: 'dogSmall',
-    label: 'Собака мелкая, до 10 кг',
-    recommendedDbpMax: 37,
-    recommendedDbpMin: 1,
+    label: 'Собака мелкая, 5-10 кг',
+    formulas: {
+      beforeFiveWeeks: constantFormula(68.68, 1.53, earlyMeasurement, 21, 42),
+      afterFiveWeeks: constantFormula(25.11, 0.61, lateMeasurement, 1, 37),
+    },
   },
   {
-    bpCoefficient: 0.7,
-    bpConstantMm: 29.18,
     id: 'dogMedium',
     label: 'Собака средняя, 10-25 кг',
-    recommendedDbpMax: 37,
-    recommendedDbpMin: 1,
+    formulas: {
+      beforeFiveWeeks: constantFormula(82.13, 1.8, earlyMeasurement, 21, 42),
+      afterFiveWeeks: constantFormula(29.18, 0.7, lateMeasurement, 1, 37),
+    },
   },
   {
-    bpCoefficient: 0.8,
-    bpConstantMm: 30,
     id: 'dogLarge',
     label: 'Собака крупная, 26-40 кг',
-    recommendedDbpMax: 30,
-    recommendedDbpMin: 2,
+    formulas: {
+      beforeFiveWeeks: constantFormula(105.1, 2.5, earlyMeasurement, 26, 42),
+      afterFiveWeeks: constantFormula(30, 0.8, lateMeasurement, 2, 30),
+    },
   },
   {
-    bpCoefficient: 0.7,
-    bpConstantMm: 29,
     id: 'dogGiant',
     label: 'Собака гигантская, более 40 кг',
-    recommendedDbpMax: 35,
-    recommendedDbpMin: 1,
+    formulas: {
+      beforeFiveWeeks: constantFormula(88.1, 1.9, earlyMeasurement, 25, 40),
+      afterFiveWeeks: constantFormula(29, 0.7, lateMeasurement, 1, 35),
+    },
   },
 ] as const satisfies readonly PdrGroup[]
 
 export const pdrGroupIds = pdrGroups.map((group) => group.id)
+export const pdrStageIds = pdrStages.map((stage) => stage.id)
 
 const pdrGroupById = new Map<PdrGroupId, PdrGroup>(
   pdrGroups.map((group) => [group.id, group]),
+)
+
+const pdrStageById = new Map<PdrStageId, PdrStage>(
+  pdrStages.map((stage) => [stage.id, stage]),
 )
 
 const pdrAccuracyDays = 2
@@ -130,26 +243,60 @@ export const getPdrGroupById = (groupId: PdrGroupId) => (
   pdrGroupById.get(groupId)
 )
 
+export const getPdrStageById = (stageId: PdrStageId) => (
+  pdrStageById.get(stageId)
+)
+
+export const calculatePdrFormulaDays = (
+  formula: PdrFormula,
+  measurementMm: number,
+) => {
+  if (formula.kind === 'constantMinusMeasurementOverDivisor') {
+    return (formula.constantMm - measurementMm) / formula.divisor
+  }
+
+  return formula.interceptDays - formula.slopePerMm * measurementMm
+}
+
+export const getPdrFormulaText = (formula: PdrFormula) => {
+  if (formula.kind === 'constantMinusMeasurementOverDivisor') {
+    return `(${formatPdrNumber(formula.constantMm, 2)} - ${formula.measurementShortLabel}мм) / ${formatPdrNumber(formula.divisor, 2)}`
+  }
+
+  return `${formatPdrNumber(formula.interceptDays, 2)} - ${formatPdrNumber(formula.slopePerMm, 5)} x ${formula.measurementShortLabel}мм`
+}
+
 export const calculatePdr = ({
   bpMm,
   examDateIso,
   groupId,
+  measurementMm,
+  stageId,
 }: PdrInput): PdrResult | undefined => {
+  const resolvedMeasurementMm = measurementMm ?? bpMm
+
   if (
     groupId === undefined ||
+    stageId === undefined ||
     examDateIso === undefined ||
-    !hasPositiveNumber(bpMm)
+    !hasPositiveNumber(resolvedMeasurementMm)
   ) {
     return undefined
   }
 
   const group = pdrGroupById.get(groupId)
+  const stage = pdrStageById.get(stageId)
 
-  if (group === undefined || parseIsoDate(examDateIso) === undefined) {
+  if (
+    group === undefined ||
+    stage === undefined ||
+    parseIsoDate(examDateIso) === undefined
+  ) {
     return undefined
   }
 
-  const daysBeforeParturition = (group.bpConstantMm - bpMm) / group.bpCoefficient
+  const formula = group.formulas[stageId]
+  const daysBeforeParturition = calculatePdrFormulaDays(formula, resolvedMeasurementMm)
   const roundedDaysBeforeParturition = Math.round(daysBeforeParturition)
   const dueDateIso = addDaysToIsoDate(examDateIso, roundedDaysBeforeParturition)
   const rangeStartIso = dueDateIso === undefined
@@ -168,16 +315,19 @@ export const calculatePdr = ({
   }
 
   return {
-    bpMm,
     daysBeforeParturition,
     dueDateIso,
+    formula,
+    formulaText: getPdrFormulaText(formula),
     group,
     isOutsideRecommendedPeriod:
-      daysBeforeParturition < group.recommendedDbpMin ||
-      daysBeforeParturition > group.recommendedDbpMax,
+      daysBeforeParturition < formula.recommendedDbpMin ||
+      daysBeforeParturition > formula.recommendedDbpMax,
+    measurementMm: resolvedMeasurementMm,
     rangeEndIso,
     rangeStartIso,
     roundedDaysBeforeParturition,
+    stage,
   }
 }
 
