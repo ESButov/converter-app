@@ -30,7 +30,7 @@ describe('ActiveSubstancesReferencePage', () => {
     expect(screen.getByRole('link', { name: 'Назад к справочнику' }).getAttribute('href')).toBe('/reference')
     expect(screen.getByLabelText('Поиск по действующему веществу')).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Фильтр по фармакологической группе' })).toBeTruthy()
-    expect(screen.getByText('Найдено: 1 · группа: все')).toBeTruthy()
+    expect(screen.getByText('Найдено: 16 · группа: все')).toBeTruthy()
     expect(screen.getByRole('navigation', { name: 'Основная навигация' })).toBeTruthy()
   })
 

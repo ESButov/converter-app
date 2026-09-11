@@ -1,0 +1,211 @@
+.app-regional-screen {
+  gap: 14px;
+}
+
+.app-regional-scroll,
+.app-regional-scroll * {
+  box-sizing: border-box;
+}
+
+.app-regional-scroll {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding: 2px 2px 28px;
+  scroll-padding-bottom: 28px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(47, 200, 196, 0.55) transparent;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.app-regional-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.app-regional-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(47, 200, 196, 0.55);
+}
+
+.app-regional-filters {
+  position: sticky;
+  top: -2px;
+  z-index: 4;
+  display: grid;
+  gap: 9px;
+  margin: -2px -2px 0;
+  padding: 2px 2px 12px;
+  background: var(--app-home-sticky-panel);
+}
+
+.app-regional-select {
+  display: grid;
+  gap: 6px;
+}
+
+.app-regional-select span,
+.app-regional-result-count,
+.app-regional-note {
+  color: var(--app-home-muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.app-regional-select select {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  padding: 0 34px 0 12px;
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 12px;
+  appearance: none;
+  background-color: var(--app-home-field-bg);
+  background-image: linear-gradient(45deg, transparent 50%, var(--app-home-muted) 50%),
+    linear-gradient(135deg, var(--app-home-muted) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
+  background-repeat: no-repeat;
+  background-size: 6px 6px, 6px 6px;
+  color: var(--app-home-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  outline: none;
+  text-overflow: ellipsis;
+}
+
+.app-regional-select select:focus {
+  border-color: var(--app-home-accent-strong);
+  box-shadow: 0 0 0 3px var(--app-home-focus-ring);
+}
+
+.app-regional-card-list {
+  display: grid;
+  gap: 10px;
+}
+
+.app-regional-card,
+.app-regional-empty {
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 16px;
+  background: var(--app-home-card);
+  box-shadow: var(--app-home-card-shadow);
+}
+
+.app-regional-card {
+  display: grid;
+  gap: 12px;
+  padding: 15px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.app-regional-card--summary {
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.app-regional-card--summary:hover,
+.app-regional-card--summary:focus-visible {
+  border-color: rgba(10, 166, 162, 0.58);
+  background: var(--app-home-card-hover);
+  transform: translateY(-1px);
+}
+
+.app-regional-card--summary:focus-visible {
+  outline: 3px solid var(--app-home-focus-ring);
+  outline-offset: 2px;
+}
+
+.app-regional-card__header {
+  display: grid;
+  gap: 8px;
+}
+
+.app-regional-summary-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.app-regional-card__arrow {
+  color: var(--app-home-accent-strong);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.app-regional-card__badge {
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(47, 200, 196, 0.14);
+  color: var(--app-home-accent-strong);
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.app-regional-card h2,
+.app-regional-summary-header h2 {
+  margin: 0;
+  color: var(--app-home-text);
+  font-size: 18px;
+  font-weight: 850;
+  letter-spacing: 0;
+  line-height: 1.14;
+}
+
+.app-regional-detail-section {
+  display: grid;
+  gap: 7px;
+  border-top: 1px solid var(--app-home-card-border);
+  padding-top: 10px;
+}
+
+.app-regional-card--detail .app-regional-detail-section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.app-regional-detail-section h3 {
+  margin: 0;
+  color: var(--app-home-text);
+  font-size: 13px;
+  font-weight: 850;
+  letter-spacing: 0;
+  line-height: 1.2;
+}
+
+.app-regional-detail-section p,
+.app-regional-list {
+  margin: 0;
+  color: var(--app-home-muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.42;
+}
+
+.app-regional-list {
+  display: grid;
+  gap: 6px;
+  padding-left: 18px;
+}
+
+.app-regional-empty {
+  color: var(--app-home-text);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+  padding: 16px;
+  text-align: center;
+}
+
+.app-regional-note {
+  margin: 0;
+}

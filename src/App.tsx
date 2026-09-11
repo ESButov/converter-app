@@ -20,9 +20,14 @@ import ConvertPage from './pages/calculation/convert'
 import PdrPage from './pages/calculation/pdr'
 import IpscalcPage from './pages/calculation/ipscalc'
 import ClrPage from './pages/calculation/clr'
+import CprCoachPage from './pages/calculation/cpr-coach'
+import { EpiduralNomogramPage } from './pages/calculation/epidural-nomogram'
 import ToxicologyReferencePage from './pages/reference/toxic'
 import ActiveSubstancesReferencePage from './pages/reference/substances'
 import VeterinaryPreparationsReferencePage from './pages/reference/preparations'
+import RegionalAnesthesiaReferencePage from './pages/reference/regional-anesthesia'
+import CompatibilityCheckPage from './pages/reference/compatibility-check'
+import Mdr1ReferencePage from './pages/reference/mdr1'
 import MainPage from './pages'
 import HomePage from './pages/home'
 import ReferencePage from './pages/reference'
@@ -39,6 +44,7 @@ function App() {
         <Routes>
           <Route index element={<MainPage />} />
           <Route path="home" element={<HomePage />} />
+          <Route path="cpr-coach" element={<CprCoachPage />} />
           <Route path="favorites" element={<FavoritesPage />} />
           <Route path="notes" element={<NotesPage />} />
           <Route path="settings" element={<SettingsPage />} />
@@ -46,6 +52,7 @@ function App() {
           <Route path='calculation/echo' element={<EchoPage />} />
           <Route path='calculation/ecg' element={<EcgPage />} />
           <Route path='calculation/pdr' element={<PdrPage />} />
+          <Route path='calculation/cpr-coach' element={<CprCoachPage />} />
           <Route path="calculation" element={<CalculationLayout />}>
             <Route path='ips' element={<IpsCalculationPage />} />
             <Route path='lipid-save' element={<LipidSavePage />} />
@@ -63,6 +70,7 @@ function App() {
             <Route path='convert' element={<ConvertPage />} />
             <Route path='ipscalc' element={<IpscalcPage />} />
             <Route path='clr' element={<ClrPage />} />
+            <Route path='epidural-nomogram' element={<EpiduralNomogramPage />} />
           </Route>
           <Route path="reference">
             <Route index element={<ReferencePage />} />
@@ -72,6 +80,10 @@ function App() {
             <Route path='substances/:substanceId' element={<ActiveSubstancesReferencePage />} />
             <Route path='preparations' element={<VeterinaryPreparationsReferencePage />} />
             <Route path='preparations/:preparationId' element={<VeterinaryPreparationsReferencePage />} />
+            <Route path='regional-anesthesia' element={<RegionalAnesthesiaReferencePage />} />
+            <Route path='regional-anesthesia/:blockId' element={<RegionalAnesthesiaReferencePage />} />
+            <Route path='compatibility' element={<CompatibilityCheckPage />} />
+            <Route path='mdr1' element={<Mdr1ReferencePage />} />
           </Route>
         </Routes>
       </section>

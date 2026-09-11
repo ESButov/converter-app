@@ -725,7 +725,7 @@
 
 .app-home-bottom-nav {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 4px;
   padding-top: 8px;
   border-top: 1px solid var(--app-home-divider);
@@ -773,6 +773,11 @@
 .app-home-bottom-nav__icon--calculator {
   -webkit-mask-image: url('/app-icons/bottom-nav/calculator.png');
   mask-image: url('/app-icons/bottom-nav/calculator.png');
+}
+
+.app-home-bottom-nav__icon--cpr {
+  -webkit-mask-image: url('/app-icons/bottom-nav/cpr.svg');
+  mask-image: url('/app-icons/bottom-nav/cpr.svg');
 }
 
 .app-home-bottom-nav__icon--favorites {

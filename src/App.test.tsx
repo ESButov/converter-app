@@ -175,6 +175,16 @@ describe('App routes', () => {
     expect(screen.getByRole('heading', { name: 'Расчет препаратов для СЛР' })).toBeTruthy()
   })
 
+  it('renders epidural nomogram calculator page by /calculation/epidural-nomogram route', () => {
+    render(
+      <MemoryRouter initialEntries={['/calculation/epidural-nomogram']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Номограмма (собаки)' })).toBeTruthy()
+  })
+
   it('renders toxicology reference page by /reference/toxic route', () => {
     render(
       <MemoryRouter initialEntries={['/reference/toxic']}>
@@ -207,6 +217,50 @@ describe('App routes', () => {
     expect(screen.getByText('Конафлион')).toBeTruthy()
   })
 
+  it('renders regional anesthesia reference page by /reference/regional-anesthesia route', () => {
+    render(
+      <MemoryRouter initialEntries={['/reference/regional-anesthesia']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Регионарная анестезия' })).toBeTruthy()
+    expect(screen.getByText('УЗИ-навигация блокад нервов головы')).toBeTruthy()
+  })
+
+  it('renders regional anesthesia block detail page by nested reference route', () => {
+    render(
+      <MemoryRouter initialEntries={['/reference/regional-anesthesia/dental-ultrasound']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'УЗИ-навигация блокад нервов головы' })).toBeTruthy()
+    expect(screen.getByText('Препараты и дозы')).toBeTruthy()
+  })
+
+  it('renders compatibility checker page by /reference/compatibility route', () => {
+    render(
+      <MemoryRouter initialEntries={['/reference/compatibility']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Проверка совместимости' })).toBeTruthy()
+    expect(screen.getByLabelText('Действующее вещество 1')).toBeTruthy()
+  })
+
+  it('renders MDR1 reference page by /reference/mdr1 route', () => {
+    render(
+      <MemoryRouter initialEntries={['/reference/mdr1']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Проверка MDR1' })).toBeTruthy()
+    expect(screen.getByLabelText('Действующее вещество или препарат')).toBeTruthy()
+  })
+
   it('renders redesigned home page by /home route without replacing the root draft', async () => {
     const user = userEvent.setup()
 
@@ -225,9 +279,10 @@ describe('App routes', () => {
     expect(screen.getByRole('link', { name: /Расчет инфузионной терапии/ })).toBeTruthy()
     expect(screen.getByRole('link', { name: /Расчет ИПС/ })).toBeTruthy()
 
-    await user.click(screen.getByRole('button', { name: /Интенсивная терапия/ }))
+    await user.click(screen.getByRole('button', { name: /Анестезия и интенсивная терапия/ }))
 
     expect(screen.queryByRole('link', { name: /Калькулятор расчета инфузионной терапии/ })).toBeNull()
+    expect(screen.getByRole('link', { name: /Номограмма \(собаки\)/ })).toBeTruthy()
     expect(screen.getByRole('link', { name: /Корректировка электролитов/ })).toBeTruthy()
   })
 
@@ -240,6 +295,9 @@ describe('App routes', () => {
 
     expect(screen.getByRole('heading', { name: 'Справочник' })).toBeTruthy()
     expect(screen.getByRole('link', { name: /Токсикология/ })).toBeTruthy()
+    expect(screen.getByRole('link', { name: /Регионарная анестезия/ })).toBeTruthy()
+    expect(screen.getByRole('link', { name: /Проверка совместимости препаратов/ })).toBeTruthy()
+    expect(screen.getByRole('link', { name: /Проверка MDR1/ })).toBeTruthy()
     expect(screen.getByRole('link', { name: /Справочник действующих веществ/ })).toBeTruthy()
     expect(screen.getByRole('link', { name: /Справочник ветеринарных препаратов/ })).toBeTruthy()
   })
@@ -316,7 +374,7 @@ describe('App routes', () => {
     expect(screen.getByText('Избранные калькуляторы появятся здесь.')).toBeTruthy()
   })
 
-  it('renders five-section bottom navigation', () => {
+  it('renders six-section bottom navigation', () => {
     render(
       <MemoryRouter initialEntries={['/home']}>
         <App />
@@ -325,6 +383,7 @@ describe('App routes', () => {
 
     expect(screen.getByRole('link', { name: 'Справочник' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Калькуляторы' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'СЛР' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Заметки' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Избранное' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Настройки' })).toBeTruthy()
@@ -334,6 +393,7 @@ describe('App routes', () => {
     const routes = [
       { label: 'Калькуляторы', path: '/home' },
       { label: 'Справочник', path: '/reference' },
+      { label: 'СЛР', path: '/cpr-coach' },
       { label: 'Заметки', path: '/notes' },
       { label: 'Избранное', path: '/favorites' },
       { label: 'Настройки', path: '/settings' },

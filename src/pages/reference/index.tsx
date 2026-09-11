@@ -13,6 +13,18 @@ const referenceSections: ReferenceSection[] = [
     to: '/reference/toxic',
   },
   {
+    name: 'Регионарная анестезия',
+    to: '/reference/regional-anesthesia',
+  },
+  {
+    name: 'Проверка совместимости препаратов',
+    to: '/reference/compatibility',
+  },
+  {
+    name: 'Проверка MDR1',
+    to: '/reference/mdr1',
+  },
+  {
     name: 'Справочник действующих веществ',
     to: '/reference/substances',
   },

@@ -43,8 +43,12 @@ const calculatorGroups: CalculatorGroup[] = [
   },
   {
     id: 'critical-care',
-    name: 'Интенсивная терапия',
+    name: 'Анестезия и интенсивная терапия',
     routes: [
+      {
+        name: 'Номограмма (собаки)',
+        to: '/calculation/epidural-nomogram',
+      },
       {
         name: 'Расчет крови и ее компонентов',
         to: '/calculation/blood-transfusion',

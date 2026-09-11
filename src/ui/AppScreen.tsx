@@ -6,8 +6,8 @@ import AppBottomNavigation from './AppBottomNavigation'
 
 type AppScreenProps = {
   ariaLabel: string
-  backLabel: string
-  backTo: string
+  backLabel?: string
+  backTo?: string
   children: ReactNode
   iconSrc?: string
   screenClassName?: string
@@ -36,9 +36,11 @@ export default function AppScreen({
           <header className="app-home-screen__header">
             <div className="app-home-screen__title-group">
               <p className="app-home-screen__app-name">VetTools</p>
-              <NavLink className="app-screen-back-link" to={backTo}>
-                {backLabel}
-              </NavLink>
+              {backTo !== undefined && backLabel !== undefined ? (
+                <NavLink className="app-screen-back-link" to={backTo}>
+                  {backLabel}
+                </NavLink>
+              ) : null}
               <h1 className="app-home-screen__title app-screen-title">{title}</h1>
             </div>
 

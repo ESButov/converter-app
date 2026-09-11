@@ -9,6 +9,7 @@ import {
 type BottomNavigationItem = {
   activePathPrefixes: readonly string[]
   iconClassName: string
+  inactivePathPrefixes?: readonly string[]
   label: string
   to: string
 }
@@ -42,8 +43,15 @@ const bottomNavigationItems: readonly BottomNavigationItem[] = [
   {
     activePathPrefixes: ['/', '/home', '/calculation'],
     iconClassName: 'app-home-bottom-nav__icon--calculator',
+    inactivePathPrefixes: ['/calculation/cpr-coach'],
     label: 'Калькуляторы',
     to: '/home',
+  },
+  {
+    activePathPrefixes: ['/cpr-coach', '/calculation/cpr-coach'],
+    iconClassName: 'app-home-bottom-nav__icon--cpr',
+    label: 'СЛР',
+    to: '/cpr-coach',
   },
   {
     activePathPrefixes: ['/notes'],
@@ -65,12 +73,15 @@ const bottomNavigationItems: readonly BottomNavigationItem[] = [
   },
 ]
 
+const hasMatchingPathPrefix = (pathname: string, prefix: string) => (
+  prefix === '/'
+    ? pathname === '/'
+    : pathname === prefix || pathname.startsWith(`${prefix}/`)
+)
+
 const getIsActiveItem = (pathname: string, item: BottomNavigationItem) => (
-  item.activePathPrefixes.some((prefix) => (
-    prefix === '/'
-      ? pathname === '/'
-      : pathname === prefix || pathname.startsWith(`${prefix}/`)
-  ))
+  !item.inactivePathPrefixes?.some((prefix) => hasMatchingPathPrefix(pathname, prefix))
+    && item.activePathPrefixes.some((prefix) => hasMatchingPathPrefix(pathname, prefix))
 )
 
 const getItemClassName = (isActive: boolean) => [
