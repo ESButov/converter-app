@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type MouseEvent } from 'react'
 import {
   calculateClrDrugs,
   clrDrugDefinitions,
@@ -281,6 +281,18 @@ const formatRealEventTime = (timestamp: number) => (
     second: '2-digit',
   }).format(new Date(timestamp))
 )
+
+const getRecordedAtFromInteraction = (event: Pick<MouseEvent<HTMLElement>, 'timeStamp'>) => {
+  if (!Number.isFinite(event.timeStamp)) {
+    return 0
+  }
+
+  if (event.timeStamp > 1_000_000_000_000) {
+    return Math.round(event.timeStamp)
+  }
+
+  return Math.round(performance.timeOrigin + event.timeStamp)
+}
 
 const formatDoseNumber = (value: number) => {
   if (value < 1) return value.toFixed(2).replace(/\.?0+$/, '')
@@ -893,11 +905,11 @@ export default function CprCoachPage() {
     audio.currentTime = 0
   }
 
-  const addEvent = (title: string, detail: string, type: EventType) => {
+  const addEvent = (title: string, detail: string, type: EventType, recordedAt: number) => {
     const nextEvent: RecordedEvent = {
       detail,
       id: eventIdRef.current + 1,
-      recordedAt: Date.now(),
+      recordedAt,
       timeSeconds: elapsedSeconds,
       title,
       type,
@@ -907,16 +919,18 @@ export default function CprCoachPage() {
     setEvents((currentEvents) => [nextEvent, ...currentEvents])
   }
 
-  const handleStartPause = () => {
+  const handleStartPause = (event: MouseEvent<HTMLButtonElement>) => {
     ensureAudioContext()
 
     const nextIsRunning = !isRunning
+    const recordedAt = getRecordedAtFromInteraction(event)
 
     setIsRunning(nextIsRunning)
     addEvent(
       nextIsRunning ? 'СЛР запущена' : 'СЛР приостановлена',
       nextIsRunning ? 'Начат двухминутный цикл.' : 'Таймер поставлен на паузу.',
       'system',
+      recordedAt,
     )
 
     if (nextIsRunning) {
@@ -930,12 +944,17 @@ export default function CprCoachPage() {
     }
   }
 
-  const handleReset = () => {
+  const handleReset = (event: MouseEvent<HTMLButtonElement>) => {
     setElapsedSeconds(0)
     setIsRunning(false)
     stopCustomTrack()
     previousPhaseRef.current = 'compressions'
-    addEvent('СЛР сброшена', 'Таймер возвращен к началу цикла.', 'system')
+    addEvent(
+      'СЛР сброшена',
+      'Таймер возвращен к началу цикла.',
+      'system',
+      getRecordedAtFromInteraction(event),
+    )
   }
 
   const handleWeightChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -1015,31 +1034,42 @@ export default function CprCoachPage() {
     ))
   }
 
-  const handleRhythmRecord = (rhythm: RhythmOption) => {
+  const handleRhythmRecord = (rhythm: RhythmOption, event: MouseEvent<HTMLButtonElement>) => {
     setLastRhythmId(rhythm.id)
     addEvent(
       rhythm.label,
       buildRhythmEventDetail(rhythm, shockEnergyLabel),
       'rhythm',
+      getRecordedAtFromInteraction(event),
     )
   }
 
-  const handleShockRecord = () => {
-    addEvent('Дефибрилляция', `Разряд: ${shockEnergyLabel}. После разряда продолжить компрессии 2 минуты.`, 'shock')
+  const handleShockRecord = (event: MouseEvent<HTMLButtonElement>) => {
+    addEvent(
+      'Дефибрилляция',
+      `Разряд: ${shockEnergyLabel}. После разряда продолжить компрессии 2 минуты.`,
+      'shock',
+      getRecordedAtFromInteraction(event),
+    )
   }
 
-  const handleCarbonDioxideRecord = () => {
+  const handleCarbonDioxideRecord = (event: MouseEvent<HTMLButtonElement>) => {
     const value = readNumber(carbonDioxideInput)
 
     if (value === undefined) {
       return
     }
 
-    addEvent('Углекислый газ', `${value} мм рт. ст.`, 'gas')
+    addEvent(
+      'Углекислый газ',
+      `${value} мм рт. ст.`,
+      'gas',
+      getRecordedAtFromInteraction(event),
+    )
     setCarbonDioxideInput('')
   }
 
-  const handleDrugRecord = (drugId: string) => {
+  const handleDrugRecord = (drugId: string, event: MouseEvent<HTMLButtonElement>) => {
     const drug = drugCalculations.find((calculation) => calculation.definition.id === drugId)
 
     if (drug === undefined) {
@@ -1050,21 +1080,28 @@ export default function CprCoachPage() {
       drug.definition.label,
       buildDrugEventDetail(drug),
       'drug',
+      getRecordedAtFromInteraction(event),
     )
   }
 
-  const handleCustomDrugRecord = () => {
+  const handleCustomDrugRecord = (event: MouseEvent<HTMLButtonElement>) => {
     const drugName = customDrugInput.trim()
 
     if (drugName === '') {
       return
     }
 
-    addEvent(drugName, 'Пользовательская запись препарата.', 'drug')
+    addEvent(
+      drugName,
+      'Пользовательская запись препарата.',
+      'drug',
+      getRecordedAtFromInteraction(event),
+    )
     setCustomDrugInput('')
   }
 
-  const handleProtocolSend = () => {
+  const handleProtocolSend = (event: MouseEvent<HTMLButtonElement>) => {
+    const recordedAt = getRecordedAtFromInteraction(event)
     const protocolPayload = buildCprProtocolEmail({
       carbonDioxideInput,
       compressionRatePerMinute: activeCompressionRatePerMinute,
@@ -1083,7 +1120,7 @@ export default function CprCoachPage() {
 
     void sendCprProtocolByEmail(protocolPayload).then(() => {
       setProtocolStatus('Протокол подготовлен. Отправка на почту будет подключена в чистовой версии.')
-      addEvent('Протокол СЛР', 'Подготовлен для отправки на почту.', 'system')
+      addEvent('Протокол СЛР', 'Подготовлен для отправки на почту.', 'system', recordedAt)
     })
   }
 
@@ -1432,7 +1469,7 @@ export default function CprCoachPage() {
                   disabled={!drug.isAvailableForSpecies}
                   key={drug.definition.id}
                   type="button"
-                  onClick={() => handleDrugRecord(drug.definition.id)}
+                  onClick={(event) => handleDrugRecord(drug.definition.id, event)}
                 >
                   <span className="app-cpr-coach-drug-button__header">
                     <span>{drug.definition.label}</span>
@@ -1482,7 +1519,7 @@ export default function CprCoachPage() {
                 ].filter(Boolean).join(' ')}
                 key={rhythm.id}
                 type="button"
-                onClick={() => handleRhythmRecord(rhythm)}
+                onClick={(event) => handleRhythmRecord(rhythm, event)}
               >
                 <span>{rhythm.label}</span>
                 <strong>{rhythm.note}</strong>
