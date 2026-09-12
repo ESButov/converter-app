@@ -278,7 +278,7 @@ const getOneToTenDilutionLabel = (
     return undefined
   }
 
-  return `Разведение: 1 мл препарата ${drug.concentrationLabel} + 9 мл 0.9% раствора натрия хлорида`
+  return `Разведение: 1 мл препарата ${drug.concentrationLabel} + 9 мл 0.9% NaCl`
 }
 
 const getOneToTenSingleDilutionVolumeLabel = (
@@ -319,7 +319,7 @@ const getExoticEpinephrineDilutionLabel = (
     return undefined
   }
 
-  return `Разведение: 0.1 мл адреналина 1 мг/мл + 9.9 мл 0.9% раствора натрия хлорида`
+  return `Разведение: 0.1 мл адреналина 1 мг/мл + 9.9 мл 0.9% NaCl`
 }
 
 const getExoticAtropineDilutionLabel = (
@@ -330,7 +330,7 @@ const getExoticAtropineDilutionLabel = (
     return undefined
   }
 
-  return `Разведение: 0.1 мл атропина 0.5 мг/мл + 9.9 мл 0.9% раствора натрия хлорида`
+  return `Разведение: 0.1 мл атропина 0.5 мг/мл + 9.9 мл 0.9% NaCl`
 }
 
 const getSpecialDilutionLabel = (

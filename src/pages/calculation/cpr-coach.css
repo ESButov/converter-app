@@ -81,6 +81,13 @@
     0 14px 28px rgba(6, 43, 55, 0.12);
 }
 
+.app-cpr-coach-timer-zone {
+  position: relative;
+  width: min(100%, 332px);
+  display: grid;
+  justify-items: center;
+}
+
 .app-cpr-coach-timer::after {
   content: '';
   position: absolute;
@@ -206,6 +213,7 @@
 .app-cpr-coach-gear-button,
 .app-cpr-coach-protocol-button,
 .app-cpr-coach-toggle,
+.app-cpr-coach-quality-toggle,
 .app-cpr-coach-event-button,
 .app-cpr-coach-rhythm-button,
 .app-cpr-coach-shock-button {
@@ -235,10 +243,15 @@
   color: var(--app-home-text);
 }
 
+.app-cpr-coach-secondary-button--quiet {
+  color: var(--app-home-muted);
+}
+
 .app-cpr-coach-secondary-button:hover,
 .app-cpr-coach-gear-button:hover,
 .app-cpr-coach-protocol-button:hover,
 .app-cpr-coach-toggle:hover,
+.app-cpr-coach-quality-toggle:hover,
 .app-cpr-coach-event-button:hover,
 .app-cpr-coach-rhythm-button:hover,
 .app-cpr-coach-shock-button:hover {
@@ -250,6 +263,7 @@
 .app-cpr-coach-gear-button:focus-visible,
 .app-cpr-coach-protocol-button:focus-visible,
 .app-cpr-coach-toggle:focus-visible,
+.app-cpr-coach-quality-toggle:focus-visible,
 .app-cpr-coach-event-button:focus-visible,
 .app-cpr-coach-rhythm-button:focus-visible,
 .app-cpr-coach-shock-button:focus-visible {
@@ -324,6 +338,145 @@
   fill: currentColor;
 }
 
+.app-cpr-coach-quality-toggle {
+  position: absolute;
+  bottom: 18px;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 999px;
+  background: var(--app-home-field-bg);
+  color: var(--app-home-muted);
+}
+
+.app-cpr-coach-quality-toggle--compressions {
+  left: 0;
+}
+
+.app-cpr-coach-quality-toggle--breathing {
+  right: 0;
+}
+
+.app-cpr-coach-quality-toggle[aria-expanded="true"] {
+  border-color: rgba(10, 166, 162, 0.68);
+  background: rgba(47, 200, 196, 0.18);
+  color: var(--app-home-accent-strong);
+}
+
+.app-cpr-coach-quality-toggle svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  fill: currentColor;
+}
+
+.app-cpr-coach-quality-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 5;
+  width: min(218px, calc(100% - 22px));
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 999px;
+  background: var(--app-home-popup-bg);
+  box-shadow: 0 18px 34px rgba(6, 43, 55, 0.18);
+  box-sizing: border-box;
+  color: var(--app-home-text);
+  font: inherit;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+
+.app-cpr-coach-quality-panel:focus-visible {
+  outline: 3px solid var(--app-home-focus-ring);
+  outline-offset: 4px;
+}
+
+.app-cpr-coach-quality-panel__content {
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+}
+
+.app-cpr-coach-quality-panel__header {
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+}
+
+.app-cpr-coach-quality-panel__header strong {
+  min-width: 0;
+  color: var(--app-home-text);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.18;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.app-cpr-coach-quality-panel__status {
+  max-width: 100%;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1.12;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.app-cpr-coach-quality-panel__status--waiting {
+  background: rgba(112, 123, 134, 0.14);
+  color: var(--app-home-muted);
+}
+
+.app-cpr-coach-quality-panel__status--ok {
+  background: rgba(47, 200, 196, 0.16);
+  color: var(--app-home-accent-strong);
+}
+
+.app-cpr-coach-quality-panel__status--low,
+.app-cpr-coach-quality-panel__status--high {
+  background: var(--app-home-danger-bg);
+  color: var(--app-home-danger-text);
+}
+
+.app-cpr-coach-quality-panel__value {
+  color: var(--app-home-accent-strong);
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+}
+
+.app-cpr-coach-quality-panel__target {
+  color: var(--app-home-muted);
+  font-size: 11px;
+  font-weight: 760;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.app-cpr-coach-quality-panel__tap-label {
+  max-width: 150px;
+  color: var(--app-home-text);
+  font-size: 10px;
+  font-weight: 850;
+  line-height: 1.15;
+  text-align: center;
+}
+
 .app-cpr-coach-gear-button,
 .app-cpr-coach-protocol-button {
   width: 36px;
@@ -365,7 +518,8 @@
   position: absolute;
   top: 44px;
   right: 0;
-  width: min(278px, calc(100vw - 76px));
+  width: min(320px, calc(100vw - 76px));
+  max-height: min(72vh, 560px);
   display: grid;
   gap: 10px;
   padding: 12px;
@@ -375,6 +529,8 @@
   box-shadow: 0 18px 34px rgba(6, 43, 55, 0.18);
   box-sizing: border-box;
   color: var(--app-home-text);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .app-cpr-coach-sound-settings > strong {
@@ -490,6 +646,55 @@
   line-height: 1.28;
 }
 
+.app-cpr-coach-display-settings {
+  display: grid;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.app-cpr-coach-display-settings > strong {
+  color: var(--app-home-text);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.app-cpr-coach-display-settings__drug-list {
+  display: grid;
+  gap: 6px;
+}
+
+.app-cpr-coach-check-option {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 8px 9px;
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 12px;
+  background: var(--app-home-card-inner);
+  box-sizing: border-box;
+  color: var(--app-home-text);
+  cursor: pointer;
+}
+
+.app-cpr-coach-check-option input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--app-home-accent);
+}
+
+.app-cpr-coach-check-option span {
+  min-width: 0;
+  color: var(--app-home-text);
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
 .app-cpr-coach-protocol-feedback {
   width: 100%;
   margin: 0;
@@ -522,8 +727,7 @@
 
 .app-cpr-coach-drug-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 4px;
 }
 
 .app-cpr-coach-event-button {
@@ -559,6 +763,119 @@
   transform: none;
 }
 
+.app-cpr-coach-drug-button {
+  height: 58px;
+  align-content: center;
+  grid-template-rows: auto auto auto;
+  gap: 2px;
+  padding: 2px 8px;
+  overflow: hidden;
+}
+
+.app-cpr-coach-drug-button__header {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.app-cpr-coach-drug-button__header > span {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--app-home-text);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.app-cpr-coach-drug-button__header small,
+.app-cpr-coach-drug-button__line {
+  min-width: 0;
+  display: -webkit-box;
+  color: var(--app-home-muted);
+  font-size: 8px;
+  font-weight: 760;
+  line-height: 1.05;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+}
+
+.app-cpr-coach-drug-button__header small {
+  flex: 0 0 auto;
+  max-width: 64%;
+  display: block;
+  text-align: right;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.app-cpr-coach-drug-button__line {
+  -webkit-line-clamp: 1;
+}
+
+.app-cpr-coach-drug-button strong {
+  font-size: 12px;
+  line-height: 1.05;
+}
+
+.app-cpr-coach-drug-button:disabled strong {
+  color: var(--app-home-field-disabled-text);
+}
+
+.app-cpr-coach-custom-drug {
+  min-width: 0;
+  min-height: 38px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.app-cpr-coach-custom-drug input,
+.app-cpr-coach-custom-drug button {
+  width: 100%;
+  height: 38px;
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 12px;
+  background: var(--app-home-card-inner);
+  box-sizing: border-box;
+  color: var(--app-home-text);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 850;
+  outline: none;
+}
+
+.app-cpr-coach-custom-drug input {
+  min-width: 0;
+  padding: 0 10px;
+}
+
+.app-cpr-coach-custom-drug input::placeholder {
+  color: var(--app-home-muted);
+}
+
+.app-cpr-coach-custom-drug input:focus,
+.app-cpr-coach-custom-drug button:focus-visible {
+  border-color: rgba(10, 166, 162, 0.72);
+  box-shadow: 0 0 0 3px var(--app-home-focus-ring);
+}
+
+.app-cpr-coach-custom-drug button {
+  min-width: 82px;
+  padding: 0 10px;
+  color: var(--app-home-accent-strong);
+  cursor: pointer;
+}
+
+.app-cpr-coach-custom-drug button:disabled {
+  color: var(--app-home-field-disabled-text);
+  cursor: not-allowed;
+}
+
 .app-cpr-coach-rhythm-list {
   display: grid;
   gap: 8px;
@@ -592,7 +909,8 @@
   font-size: 10px;
   font-weight: 900;
   line-height: 1.05;
-  white-space: nowrap;
+  text-align: center;
+  white-space: pre-line;
 }
 
 .app-cpr-coach-rhythm-button--shockable strong,
@@ -694,9 +1012,27 @@
   box-shadow: 0 18px 34px rgba(0, 0, 0, 0.34);
 }
 
+:root[data-theme="dark"] .app-cpr-coach-quality-panel {
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.34);
+}
+
 @media (max-width: 420px) {
+  .app-cpr-coach-timer-zone {
+    width: min(100%, 292px);
+  }
+
+  .app-cpr-coach-quality-panel {
+    width: min(224px, calc(100% - 18px));
+  }
+
   .app-cpr-coach-timer {
     width: 204px;
+  }
+
+  .app-cpr-coach-quality-toggle {
+    bottom: 12px;
+    width: 40px;
+    height: 40px;
   }
 
   .app-cpr-coach-timer__phase {
@@ -724,7 +1060,7 @@
     grid-template-columns: 1fr;
   }
 
-  .app-cpr-coach-drug-grid {
-    grid-template-columns: 1fr;
+  .app-cpr-coach-drug-button {
+    height: 60px;
   }
 }

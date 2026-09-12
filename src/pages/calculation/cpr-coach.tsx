@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import {
   calculateClrDrugs,
+  clrDrugDefinitions,
   clrSpeciesLabels,
+  type ClrDrugCalculation,
   type ClrSpecies,
 } from '../../domain/clr'
 import AppScreen from '../../ui/AppScreen'
@@ -25,12 +27,21 @@ type RhythmOption = {
   shockable: boolean
 }
 
+type QualityPanel = 'breathing' | 'compressions'
+type QualityTone = 'high' | 'low' | 'ok' | 'waiting'
+
+type CprDisplaySettings = {
+  isDefibrillatorVisible: boolean
+  visibleDrugIds: string[]
+}
+
 type AudioWindow = Window & typeof globalThis & {
   webkitAudioContext?: typeof AudioContext
 }
 
 type SoundMode = 'metronome' | 'melody-1' | 'melody-2' | 'melody-3' | 'custom'
 type BuiltInSoundMode = Exclude<SoundMode, 'custom'>
+type VoicePromptId = 'start-compressions' | 'pulse-check' | 'new-cycle'
 
 type ToneStep = {
   durationSeconds: number
@@ -65,6 +76,23 @@ const pulseCheckSeconds = 10
 const defaultCompressionRatePerMinute = 110
 const ventilationRatePerMinute = 10
 const customTrackRatePattern = /^\d{0,3}$/
+const cprDisplaySettingsStorageKey = 'vettools-cpr-coach-display-settings-v1'
+const cprDrugIds = clrDrugDefinitions.map((drug) => drug.id)
+
+const voicePrompts: Record<VoicePromptId, { src: string; fallbackText: string }> = {
+  'new-cycle': {
+    fallbackText: 'Начать компрессии. Новый цикл.',
+    src: '/audio/cpr-coach/new-cycle.wav',
+  },
+  'pulse-check': {
+    fallbackText: 'Проверка пульса. Десять секунд.',
+    src: '/audio/cpr-coach/pulse-check.wav',
+  },
+  'start-compressions': {
+    fallbackText: 'Начать компрессии.',
+    src: '/audio/cpr-coach/start-compressions.wav',
+  },
+}
 
 const speciesOptions: readonly {
   label: string
@@ -196,9 +224,21 @@ const rhythmOptions: readonly RhythmOption[] = [
     shockable: true,
   },
   {
+    id: 'supraventricular-tachycardia',
+    label: 'Наджелудочковая тахикардия',
+    note: 'Оценить наличие пульса',
+    shockable: false,
+  },
+  {
     id: 'pulse',
-    label: 'Пульс определяется',
-    note: 'Отметка восстановления кровообращения',
+    label: 'Пульс найден',
+    note: 'Отметка восстановления\nкровообращения',
+    shockable: false,
+  },
+  {
+    id: 'spontaneous-breathing',
+    label: 'Спонтанное дыхание',
+    note: 'Отметка восстановления\nсамостоятельного дыхания',
     shockable: false,
   },
 ]
@@ -247,6 +287,58 @@ const getPulseCheckProgress = (phaseElapsedSeconds: number) => (
   Math.min(1, Math.max(0, (phaseElapsedSeconds - compressionSeconds) / pulseCheckSeconds))
 )
 
+const calculateTapRate = (timestamps: readonly number[]) => {
+  if (timestamps.length < 2) {
+    return undefined
+  }
+
+  const firstTimestamp = timestamps[0]
+  const lastTimestamp = timestamps[timestamps.length - 1]
+  const elapsedMs = lastTimestamp - firstTimestamp
+
+  if (elapsedMs <= 0) {
+    return undefined
+  }
+
+  return Math.round((timestamps.length - 1) * 60_000 / elapsedMs)
+}
+
+const getQualityStatus = (
+  panel: QualityPanel,
+  ratePerMinute: number | undefined,
+): { label: string; tone: QualityTone } => {
+  if (ratePerMinute === undefined) {
+    return {
+      label: 'Нужно минимум 2 отметки',
+      tone: 'waiting',
+    }
+  }
+
+  if (panel === 'compressions') {
+    if (ratePerMinute < 100) return { label: 'Медленно', tone: 'low' }
+    if (ratePerMinute > 120) return { label: 'Быстро', tone: 'high' }
+
+    return { label: 'Норма', tone: 'ok' }
+  }
+
+  if (ratePerMinute < 8) return { label: 'Редко', tone: 'low' }
+  if (ratePerMinute > 12) return { label: 'Часто', tone: 'high' }
+
+  return { label: 'Норма', tone: 'ok' }
+}
+
+const buildQualityTimestamps = (
+  currentTimestamps: readonly number[],
+  windowMs: number,
+) => {
+  const currentTimestamp = Date.now()
+  const recentTimestamps = currentTimestamps.filter((timestamp) => (
+    currentTimestamp - timestamp <= windowMs
+  ))
+
+  return [...recentTimestamps, currentTimestamp].slice(-5)
+}
+
 const playTone = (
   audioContext: AudioContext | null,
   frequency: number,
@@ -290,6 +382,81 @@ const playTonePattern = (
   })
 }
 
+const getDrugDilutionLabel = (drug: ClrDrugCalculation) => (
+  drug.dilutionLabel ?? drug.specialDilutionLabel
+)
+
+const getDrugPrimaryVolumeLabel = (drug: ClrDrugCalculation) => (
+  drug.dilutionVolumeLabel ?? drug.volumeLabel
+)
+
+const buildDrugEventDetail = (drug: ClrDrugCalculation) => {
+  const dilutionLabel = getDrugDilutionLabel(drug)
+  const hasDilutionPrimary = drug.isAvailableForSpecies && dilutionLabel !== undefined
+  const details = [
+    dilutionLabel,
+    hasDilutionPrimary
+      ? `Объем из разведения: ${getDrugPrimaryVolumeLabel(drug)}`
+      : `Объем: ${drug.volumeLabel}`,
+    drug.intratrachealLabel,
+    hasDilutionPrimary ? undefined : `Доза: ${drug.amountLabel}`,
+    `${drug.definition.doseLabel} - ${drug.definition.concentrationLabel}`,
+    drug.definition.route,
+  ].filter((detail): detail is string => detail !== undefined && detail !== '')
+
+  return `${details.join('; ')}.`
+}
+
+const buildRhythmEventDetail = (rhythm: RhythmOption, shockEnergyLabel: string) => {
+  if (rhythm.shockable) {
+    return `Шоковый ритм. Расчет разряда: ${shockEnergyLabel}.`
+  }
+
+  return rhythm.note.replace(/\s+/g, ' ')
+}
+
+const createDefaultDisplaySettings = (): CprDisplaySettings => ({
+  isDefibrillatorVisible: true,
+  visibleDrugIds: [...cprDrugIds],
+})
+
+const sanitizeDisplaySettings = (value: unknown): CprDisplaySettings => {
+  const defaultSettings = createDefaultDisplaySettings()
+
+  if (typeof value !== 'object' || value === null) {
+    return defaultSettings
+  }
+
+  const partialSettings = value as Partial<CprDisplaySettings>
+  const validDrugIds = Array.isArray(partialSettings.visibleDrugIds)
+    ? partialSettings.visibleDrugIds.filter((drugId): drugId is string => (
+      typeof drugId === 'string' &&
+      cprDrugIds.includes(drugId)
+    ))
+    : defaultSettings.visibleDrugIds
+
+  return {
+    isDefibrillatorVisible: typeof partialSettings.isDefibrillatorVisible === 'boolean'
+      ? partialSettings.isDefibrillatorVisible
+      : defaultSettings.isDefibrillatorVisible,
+    visibleDrugIds: cprDrugIds.filter((drugId) => validDrugIds.includes(drugId)),
+  }
+}
+
+const readDisplaySettings = () => {
+  if (typeof window === 'undefined') {
+    return createDefaultDisplaySettings()
+  }
+
+  try {
+    return sanitizeDisplaySettings(
+      JSON.parse(window.localStorage.getItem(cprDisplaySettingsStorageKey) ?? 'null'),
+    )
+  } catch {
+    return createDefaultDisplaySettings()
+  }
+}
+
 const buildCprProtocolEmail = (data: CprProtocolData): CprProtocolPayload => {
   const chronologicalEvents = [...data.events].sort((firstEvent, secondEvent) => (
     firstEvent.timeSeconds - secondEvent.timeSeconds
@@ -331,8 +498,8 @@ const sendCprProtocolByEmail = async (payload: CprProtocolPayload) => {
   } as const
 }
 
-const speakPrompt = (text: string, enabled: boolean) => {
-  if (!enabled || !('speechSynthesis' in window)) {
+const speakFallbackPrompt = (text: string) => {
+  if (!('speechSynthesis' in window)) {
     return
   }
 
@@ -385,6 +552,22 @@ function BreathIcon() {
   )
 }
 
+function CompressionQualityIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="M12 3.2a5.1 5.1 0 0 1 4.6 7.3l2 2c.7.7.7 1.8 0 2.5l-1.4 1.4c-.7.7-1.8.7-2.5 0l-2.1-2.1c-.2 0-.4.1-.6.1a5.6 5.6 0 0 1-.7 0L9.2 16.5c-.7.7-1.8.7-2.5 0L5.3 15c-.7-.7-.7-1.8 0-2.5l2-2A5.1 5.1 0 0 1 12 3.2Zm0 2a3.1 3.1 0 1 0 0 6.2 3.1 3.1 0 0 0 0-6.2Zm-4.9 8.5 1 1 1.2-1.2a5.4 5.4 0 0 1-1-.8l-1.2 1Zm7.6-.2 1.2 1.2 1-1-1.2-1.1c-.3.3-.6.6-1 .9Z" />
+    </svg>
+  )
+}
+
+function VentilationQualityIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="M6.3 10.2c1.2-2.9 3.4-4.8 5.7-4.8s4.5 1.9 5.7 4.8c1.2.3 2.1 1.4 2.1 2.7v2.7c0 1.7-1.4 3.1-3.1 3.1h-2.1c-.6 0-1-.4-1-1v-4.3c0-.9-.7-1.6-1.6-1.6s-1.6.7-1.6 1.6v4.3c0 .6-.4 1-1 1H7.3a3.1 3.1 0 0 1-3.1-3.1v-2.7c0-1.3.9-2.4 2.1-2.7Zm5.7-2.8c-1.3 0-2.8 1.1-3.7 2.8h1.1c1.4 0 2.6.8 3.2 2 .6-1.2 1.8-2 3.2-2h1.1c-1-1.7-2.5-2.8-3.9-2.8Z" />
+    </svg>
+  )
+}
+
 function VoiceIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -416,6 +599,7 @@ export default function CprCoachPage() {
   const [species, setSpecies] = useState<CoachSpecies>('dog')
   const [weightInput, setWeightInput] = useState('')
   const [carbonDioxideInput, setCarbonDioxideInput] = useState('')
+  const [customDrugInput, setCustomDrugInput] = useState('')
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const [isRunning, setIsRunning] = useState(false)
   const [isMetronomeEnabled, setIsMetronomeEnabled] = useState(true)
@@ -428,10 +612,15 @@ export default function CprCoachPage() {
   const [customTrackUrl, setCustomTrackUrl] = useState<string>()
   const [protocolStatus, setProtocolStatus] = useState('')
   const [lastRhythmId, setLastRhythmId] = useState<string>()
+  const [activeQualityPanel, setActiveQualityPanel] = useState<QualityPanel>()
+  const [compressionTapTimestamps, setCompressionTapTimestamps] = useState<number[]>([])
+  const [breathingTapTimestamps, setBreathingTapTimestamps] = useState<number[]>([])
+  const [displaySettings, setDisplaySettings] = useState<CprDisplaySettings>(readDisplaySettings)
   const [events, setEvents] = useState<RecordedEvent[]>([])
   const eventIdRef = useRef(0)
   const audioContextRef = useRef<AudioContext | null>(null)
   const customAudioRef = useRef<HTMLAudioElement | null>(null)
+  const voiceAudioRef = useRef<HTMLAudioElement | null>(null)
   const previousPhaseRef = useRef<'compressions' | 'pulse-check'>('compressions')
   const soundSettingsRef = useRef<HTMLDivElement | null>(null)
 
@@ -439,6 +628,14 @@ export default function CprCoachPage() {
   const drugCalculations = useMemo(
     () => calculateClrDrugs(species, weightKg),
     [species, weightKg],
+  )
+  const visibleDrugIdSet = useMemo(
+    () => new Set(displaySettings.visibleDrugIds),
+    [displaySettings.visibleDrugIds],
+  )
+  const visibleDrugCalculations = useMemo(
+    () => drugCalculations.filter((drug) => visibleDrugIdSet.has(drug.definition.id)),
+    [drugCalculations, visibleDrugIdSet],
   )
   const customTrackRate = useMemo(
     () => readNumber(customTrackRateInput),
@@ -463,6 +660,46 @@ export default function CprCoachPage() {
   const lastRhythm = rhythmOptions.find((rhythm) => rhythm.id === lastRhythmId)
   const activeEventCount = events.length
   const phaseLabel = phase === 'compressions' ? 'компрессии' : 'проверка пульса'
+  const compressionTapRate = calculateTapRate(compressionTapTimestamps)
+  const breathingTapRate = calculateTapRate(breathingTapTimestamps)
+  const activeQualityRate = activeQualityPanel === 'breathing'
+    ? breathingTapRate
+    : compressionTapRate
+  const activeQualityStatus = getQualityStatus(activeQualityPanel ?? 'compressions', activeQualityRate)
+
+  const resetQualityMeasurements = useCallback((panel: QualityPanel) => {
+    if (panel === 'compressions') {
+      setCompressionTapTimestamps([])
+      return
+    }
+
+    setBreathingTapTimestamps([])
+  }, [])
+
+  const closeQualityPanel = useCallback(() => {
+    if (activeQualityPanel !== undefined) {
+      resetQualityMeasurements(activeQualityPanel)
+    }
+
+    setActiveQualityPanel(undefined)
+  }, [activeQualityPanel, resetQualityMeasurements])
+
+  const playVoicePrompt = useCallback((promptId: VoicePromptId) => {
+    if (!isVoiceEnabled) {
+      return
+    }
+
+    const prompt = voicePrompts[promptId]
+    voiceAudioRef.current?.pause()
+    window.speechSynthesis?.cancel()
+
+    const audio = new Audio(prompt.src)
+    voiceAudioRef.current = audio
+
+    void audio.play().catch(() => {
+      speakFallbackPrompt(prompt.fallbackText)
+    })
+  }, [isVoiceEnabled])
 
   useEffect(() => {
     if (!isRunning) {
@@ -495,6 +732,39 @@ export default function CprCoachPage() {
 
     return () => document.removeEventListener('pointerdown', handlePointerDown)
   }, [isSoundSettingsOpen])
+
+  useEffect(() => {
+    if (activeQualityPanel === undefined) {
+      return undefined
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!(event.target instanceof Element)) {
+        return
+      }
+
+      if (event.target.closest('.app-cpr-coach-quality-panel, .app-cpr-coach-quality-toggle')) {
+        return
+      }
+
+      closeQualityPanel()
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown)
+
+    return () => document.removeEventListener('pointerdown', handlePointerDown)
+  }, [activeQualityPanel, closeQualityPanel])
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        cprDisplaySettingsStorageKey,
+        JSON.stringify(displaySettings),
+      )
+    } catch {
+      // Настройки не критичны: при недоступном хранилище ассистент продолжит работать.
+    }
+  }, [displaySettings])
 
   useEffect(() => () => {
     if (customTrackUrl !== undefined) {
@@ -568,12 +838,8 @@ export default function CprCoachPage() {
 
     previousPhaseRef.current = phase
 
-    if (phase === 'pulse-check') {
-      speakPrompt('Проверка пульса. Десять секунд.', isVoiceEnabled)
-    } else {
-      speakPrompt('Начать компрессии. Новый цикл.', isVoiceEnabled)
-    }
-  }, [isVoiceEnabled, phase])
+    playVoicePrompt(phase === 'pulse-check' ? 'pulse-check' : 'new-cycle')
+  }, [phase, playVoicePrompt])
 
   const ensureAudioContext = () => {
     const audioWindow = window as AudioWindow
@@ -640,7 +906,7 @@ export default function CprCoachPage() {
     )
 
     if (nextIsRunning) {
-      speakPrompt('Начать компрессии.', isVoiceEnabled)
+      playVoicePrompt('start-compressions')
 
       if (isMetronomeEnabled && soundMode === 'custom' && phase === 'compressions') {
         playCustomTrack()
@@ -674,6 +940,10 @@ export default function CprCoachPage() {
     }
   }
 
+  const handleCustomDrugChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setCustomDrugInput(event.target.value)
+  }
+
   const handleCustomTrackChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
 
@@ -694,11 +964,48 @@ export default function CprCoachPage() {
     }
   }
 
+  const handleDrugVisibilityToggle = (drugId: string) => {
+    setDisplaySettings((currentSettings) => {
+      const visibleDrugIds = new Set(currentSettings.visibleDrugIds)
+
+      if (visibleDrugIds.has(drugId)) {
+        visibleDrugIds.delete(drugId)
+      } else {
+        visibleDrugIds.add(drugId)
+      }
+
+      return {
+        ...currentSettings,
+        visibleDrugIds: cprDrugIds.filter((currentDrugId) => visibleDrugIds.has(currentDrugId)),
+      }
+    })
+  }
+
+  const handleDefibrillatorVisibilityToggle = () => {
+    setDisplaySettings((currentSettings) => ({
+      ...currentSettings,
+      isDefibrillatorVisible: !currentSettings.isDefibrillatorVisible,
+    }))
+  }
+
+  const handleQualityTap = (panel: QualityPanel) => {
+    if (panel === 'compressions') {
+      setCompressionTapTimestamps((currentTimestamps) => (
+        buildQualityTimestamps(currentTimestamps, 6_000)
+      ))
+      return
+    }
+
+    setBreathingTapTimestamps((currentTimestamps) => (
+      buildQualityTimestamps(currentTimestamps, 36_000)
+    ))
+  }
+
   const handleRhythmRecord = (rhythm: RhythmOption) => {
     setLastRhythmId(rhythm.id)
     addEvent(
       rhythm.label,
-      rhythm.shockable ? `Шоковый ритм. Расчет разряда: ${shockEnergyLabel}.` : rhythm.note,
+      buildRhythmEventDetail(rhythm, shockEnergyLabel),
       'rhythm',
     )
   }
@@ -727,9 +1034,20 @@ export default function CprCoachPage() {
 
     addEvent(
       drug.definition.label,
-      `${drug.volumeLabel}; ${drug.definition.doseLabel}; ${drug.definition.route}.`,
+      buildDrugEventDetail(drug),
       'drug',
     )
+  }
+
+  const handleCustomDrugRecord = () => {
+    const drugName = customDrugInput.trim()
+
+    if (drugName === '') {
+      return
+    }
+
+    addEvent(drugName, 'Пользовательская запись препарата.', 'drug')
+    setCustomDrugInput('')
   }
 
   const handleProtocolSend = () => {
@@ -819,9 +1137,9 @@ export default function CprCoachPage() {
           <div className="app-cpr-coach-sound-settings-anchor" ref={soundSettingsRef}>
             <button
               aria-expanded={isSoundSettingsOpen}
-              aria-label="Настройки звука ритма"
+              aria-label="Настройки ассистента СЛР"
               className="app-cpr-coach-gear-button"
-              title="Настройки звука"
+              title="Настройки"
               type="button"
               onClick={() => setIsSoundSettingsOpen((isOpen) => !isOpen)}
             >
@@ -829,7 +1147,7 @@ export default function CprCoachPage() {
             </button>
             {isSoundSettingsOpen ? (
               <div
-                aria-label="Настройки звука ритма"
+                aria-label="Настройки ассистента СЛР"
                 className="app-cpr-coach-sound-settings"
                 role="dialog"
               >
@@ -879,6 +1197,29 @@ export default function CprCoachPage() {
                     </p>
                   </div>
                 ) : null}
+                <div className="app-cpr-coach-display-settings">
+                  <strong>Отображать</strong>
+                  <label className="app-cpr-coach-check-option">
+                    <input
+                      checked={displaySettings.isDefibrillatorVisible}
+                      type="checkbox"
+                      onChange={handleDefibrillatorVisibilityToggle}
+                    />
+                    <span>Дефибриллятор</span>
+                  </label>
+                  <div className="app-cpr-coach-display-settings__drug-list">
+                    {clrDrugDefinitions.map((drug) => (
+                      <label className="app-cpr-coach-check-option" key={drug.id}>
+                        <input
+                          checked={displaySettings.visibleDrugIds.includes(drug.id)}
+                          type="checkbox"
+                          onChange={() => handleDrugVisibilityToggle(drug.id)}
+                        />
+                        <span>{drug.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
               </div>
             ) : null}
           </div>
@@ -893,38 +1234,128 @@ export default function CprCoachPage() {
             <SaveIcon />
           </button>
 
-          <div
-            className={[
-              'app-cpr-coach-timer',
-              phase === 'pulse-check' ? 'app-cpr-coach-timer--pulse' : '',
-            ].filter(Boolean).join(' ')}
-            style={circleStyle}
-          >
-            <span className="app-cpr-coach-timer__phase">
-              {phase === 'compressions' ? 'Компрессии' : 'Проверка пульса'}
-            </span>
-            <strong className="app-cpr-coach-timer__time">
-              {formatTimer(phaseRemainingSeconds)}
-            </strong>
-            <span className="app-cpr-coach-timer__cycle">Цикл {cycleNumber}</span>
-            <span className="app-cpr-coach-timer__controls" aria-label="Управление СЛР">
+          <div className="app-cpr-coach-timer-zone">
+            <button
+              aria-label="Проверка компрессий"
+              aria-expanded={activeQualityPanel === 'compressions'}
+              className="app-cpr-coach-quality-toggle app-cpr-coach-quality-toggle--compressions"
+              title="Проверка компрессий"
+              type="button"
+              onClick={() => {
+                if (activeQualityPanel === 'compressions') {
+                  closeQualityPanel()
+                  return
+                }
+
+                if (activeQualityPanel !== undefined) {
+                  resetQualityMeasurements(activeQualityPanel)
+                }
+
+                resetQualityMeasurements('compressions')
+                setActiveQualityPanel('compressions')
+              }}
+            >
+              <CompressionQualityIcon />
+            </button>
+
+            <div
+              className={[
+                'app-cpr-coach-timer',
+                phase === 'pulse-check' ? 'app-cpr-coach-timer--pulse' : '',
+              ].filter(Boolean).join(' ')}
+              style={circleStyle}
+            >
+              <span className="app-cpr-coach-timer__phase">
+                {phase === 'compressions' ? 'Компрессии' : 'Проверка пульса'}
+              </span>
+              <strong className="app-cpr-coach-timer__time">
+                {formatTimer(phaseRemainingSeconds)}
+              </strong>
+              <span className="app-cpr-coach-timer__cycle">Цикл {cycleNumber}</span>
+              <span className="app-cpr-coach-timer__controls" aria-label="Управление СЛР">
+                <button
+                  aria-label={isRunning ? 'Пауза таймера СЛР' : 'Старт таймера СЛР'}
+                  className="app-cpr-coach-timer-button app-cpr-coach-timer-button--primary"
+                  type="button"
+                  onClick={handleStartPause}
+                >
+                  {isRunning ? <PauseIcon /> : <PlayIcon />}
+                </button>
+                <button
+                  aria-label="Стоп и сброс таймера СЛР"
+                  className="app-cpr-coach-timer-button"
+                  type="button"
+                  onClick={handleReset}
+                >
+                  <StopIcon />
+                </button>
+              </span>
+            </div>
+
+            <button
+              aria-label="Проверка дыхания"
+              aria-expanded={activeQualityPanel === 'breathing'}
+              className="app-cpr-coach-quality-toggle app-cpr-coach-quality-toggle--breathing"
+              title="Проверка дыхания"
+              type="button"
+              onClick={() => {
+                if (activeQualityPanel === 'breathing') {
+                  closeQualityPanel()
+                  return
+                }
+
+                if (activeQualityPanel !== undefined) {
+                  resetQualityMeasurements(activeQualityPanel)
+                }
+
+                resetQualityMeasurements('breathing')
+                setActiveQualityPanel('breathing')
+              }}
+            >
+              <VentilationQualityIcon />
+            </button>
+
+            {activeQualityPanel !== undefined ? (
               <button
-                aria-label={isRunning ? 'Пауза таймера СЛР' : 'Старт таймера СЛР'}
-                className="app-cpr-coach-timer-button app-cpr-coach-timer-button--primary"
+                aria-label={activeQualityPanel === 'compressions'
+                  ? 'Отметить компрессию'
+                  : 'Отметить вдох'}
+                className={[
+                  'app-cpr-coach-quality-panel',
+                  `app-cpr-coach-quality-panel--${activeQualityPanel}`,
+                ].join(' ')}
                 type="button"
-                onClick={handleStartPause}
+                onClick={() => handleQualityTap(activeQualityPanel)}
               >
-                {isRunning ? <PauseIcon /> : <PlayIcon />}
+                <span className="app-cpr-coach-quality-panel__content">
+                  <span className="app-cpr-coach-quality-panel__header">
+                    <strong>
+                      {activeQualityPanel === 'compressions'
+                        ? 'Проверка компрессий'
+                        : 'Проверка дыхания'}
+                    </strong>
+                    <span
+                      className={`app-cpr-coach-quality-panel__status app-cpr-coach-quality-panel__status--${activeQualityStatus.tone}`}
+                    >
+                      {activeQualityStatus.label}
+                    </span>
+                  </span>
+                  <span className="app-cpr-coach-quality-panel__value">
+                    {activeQualityRate === undefined ? '-' : `${activeQualityRate}/мин`}
+                  </span>
+                  <span className="app-cpr-coach-quality-panel__target">
+                    {activeQualityPanel === 'compressions'
+                      ? 'Цель: 100-120 компрессий/мин'
+                      : 'Цель: около 10 вдохов/мин'}
+                  </span>
+                  <span className="app-cpr-coach-quality-panel__tap-label">
+                    {activeQualityPanel === 'compressions'
+                      ? 'Нажимайте в круг при каждой компрессии'
+                      : 'Нажимайте в круг при каждом вдохе'}
+                  </span>
+                </span>
               </button>
-              <button
-                aria-label="Стоп и сброс таймера СЛР"
-                className="app-cpr-coach-timer-button"
-                type="button"
-                onClick={handleReset}
-              >
-                <StopIcon />
-              </button>
-            </span>
+            ) : null}
           </div>
 
           <div className="app-cpr-coach-status-grid" aria-label="Параметры цикла">
@@ -977,21 +1408,52 @@ export default function CprCoachPage() {
         <section className="app-cpr-coach-panel" aria-label="Запись препаратов">
           <h2>Препараты</h2>
           <div className="app-cpr-coach-drug-grid">
-            {drugCalculations.map((drug) => (
+            {visibleDrugCalculations.map((drug) => {
+              const dilutionLabel = getDrugDilutionLabel(drug)
+              const primaryVolumeLabel = getDrugPrimaryVolumeLabel(drug)
+
+              return (
+                <button
+                  className="app-cpr-coach-event-button app-cpr-coach-drug-button"
+                  disabled={!drug.isAvailableForSpecies}
+                  key={drug.definition.id}
+                  type="button"
+                  onClick={() => handleDrugRecord(drug.definition.id)}
+                >
+                  <span className="app-cpr-coach-drug-button__header">
+                    <span>{drug.definition.label}</span>
+                    <small>{drug.definition.doseLabel} - {drug.definition.concentrationLabel}</small>
+                  </span>
+                  {dilutionLabel ? (
+                    <small className="app-cpr-coach-drug-button__line">
+                      {dilutionLabel}
+                    </small>
+                  ) : null}
+                  <strong>Ввести: {primaryVolumeLabel}</strong>
+                </button>
+              )
+            })}
+            <div className="app-cpr-coach-custom-drug">
+              <input
+                aria-label="Свой препарат"
+                onChange={handleCustomDrugChange}
+                placeholder="Свой препарат"
+                type="text"
+                value={customDrugInput}
+              />
               <button
-                className="app-cpr-coach-event-button"
-                disabled={!drug.isAvailableForSpecies}
-                key={drug.definition.id}
+                disabled={customDrugInput.trim() === ''}
                 type="button"
-                onClick={() => handleDrugRecord(drug.definition.id)}
+                onClick={handleCustomDrugRecord}
               >
-                <span>{drug.definition.label}</span>
-                <strong>{drug.volumeLabel}</strong>
+                Записать
               </button>
-            ))}
+            </div>
           </div>
           {drugCalculations.length === 0 ? (
             <p className="app-cpr-coach-muted">Укажите массу для быстрого расчета доз.</p>
+          ) : visibleDrugCalculations.length === 0 ? (
+            <p className="app-cpr-coach-muted">Все препараты скрыты в настройках.</p>
           ) : null}
         </section>
 
@@ -1021,14 +1483,16 @@ export default function CprCoachPage() {
         </section>
 
         <section className="app-cpr-coach-panel" aria-label="Дефибрилляция и углекислый газ">
-          <h2>Дефибрилляция и газ</h2>
-          <button
-            className="app-cpr-coach-shock-button"
-            type="button"
-            onClick={handleShockRecord}
-          >
-            Записать разряд {shockEnergyLabel}
-          </button>
+          <h2>{displaySettings.isDefibrillatorVisible ? 'Дефибрилляция и газ' : 'Газ'}</h2>
+          {displaySettings.isDefibrillatorVisible ? (
+            <button
+              className="app-cpr-coach-shock-button"
+              type="button"
+              onClick={handleShockRecord}
+            >
+              Записать разряд {shockEnergyLabel}
+            </button>
+          ) : null}
 
           <div className="app-cpr-coach-carbon-dioxide">
             <label className="app-cpr-coach-field">
