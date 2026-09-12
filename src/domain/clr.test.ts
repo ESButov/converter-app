@@ -7,7 +7,7 @@ describe('calculateClrDrugs', () => {
 
     expect(result.find((drug) => drug.definition.id === 'epinephrine')?.volumeLabel).toBe('0.05 мл')
     expect(result.find((drug) => drug.definition.id === 'epinephrine')?.dilutionLabel).toBe(
-      'Разведение: 1 мл препарата 1 мг/мл + 9 мл 0.9% раствора натрия хлорида',
+      'Разведение: 1 мл препарата 1 мг/мл + 9 мл 0.9% NaCl',
     )
     expect(result.find((drug) => drug.definition.id === 'epinephrine')?.dilutionVolumeLabel).toBe('0.5 мл')
     expect(result.find((drug) => drug.definition.id === 'epinephrine')?.intratrachealLabel).toBe(
@@ -19,7 +19,7 @@ describe('calculateClrDrugs', () => {
     )
     expect(result.find((drug) => drug.definition.id === 'atropine')?.volumeLabel).toBe('0.4 мл-0.54 мл')
     expect(result.find((drug) => drug.definition.id === 'atropine')?.dilutionLabel).toBe(
-      'Разведение: 1 мл препарата 0.5 мг/мл + 9 мл 0.9% раствора натрия хлорида',
+      'Разведение: 1 мл препарата 0.5 мг/мл + 9 мл 0.9% NaCl',
     )
     expect(result.find((drug) => drug.definition.id === 'atropine')?.dilutionVolumeLabel).toBe('4 мл-5.4 мл')
     expect(result.find((drug) => drug.definition.id === 'atropine')?.intratrachealLabel).toBe(
@@ -61,11 +61,11 @@ describe('calculateClrDrugs', () => {
 
     expect(epinephrine?.volumeLabel).toBe('0.3 мл')
     expect(epinephrine?.specialDilutionLabel).toBe(
-      'Разведение: 0.1 мл адреналина 1 мг/мл + 9.9 мл 0.9% раствора натрия хлорида',
+      'Разведение: 0.1 мл адреналина 1 мг/мл + 9.9 мл 0.9% NaCl',
     )
     expect(atropine?.volumeLabel).toBe('2.4 мл-3.24 мл')
     expect(atropine?.specialDilutionLabel).toBe(
-      'Разведение: 0.1 мл атропина 0.5 мг/мл + 9.9 мл 0.9% раствора натрия хлорида',
+      'Разведение: 0.1 мл атропина 0.5 мг/мл + 9.9 мл 0.9% NaCl',
     )
     expect(naloxone?.volumeLabel).toBe('0.03 мл')
     expect(atipamezole?.volumeLabel).toBe('0.006 мл')

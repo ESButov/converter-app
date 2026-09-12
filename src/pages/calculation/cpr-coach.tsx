@@ -15,6 +15,7 @@ type EventType = 'drug' | 'rhythm' | 'shock' | 'gas' | 'system'
 type RecordedEvent = {
   detail: string
   id: number
+  recordedAt: number
   timeSeconds: number
   title: string
   type: EventType
@@ -269,6 +270,18 @@ const formatEventTime = (seconds: number) => {
   return `${minutes}:${String(restSeconds).padStart(2, '0')}`
 }
 
+const getEventCycleNumber = (seconds: number) => (
+  Math.floor(seconds / sequenceSeconds) + 1
+)
+
+const formatRealEventTime = (timestamp: number) => (
+  new Intl.DateTimeFormat('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(new Date(timestamp))
+)
+
 const formatDoseNumber = (value: number) => {
   if (value < 1) return value.toFixed(2).replace(/\.?0+$/, '')
 
@@ -463,7 +476,7 @@ const buildCprProtocolEmail = (data: CprProtocolData): CprProtocolPayload => {
   ))
   const eventLines = chronologicalEvents.length > 0
     ? chronologicalEvents.map((event) => (
-      `${formatEventTime(event.timeSeconds)} - ${event.title}: ${event.detail}`
+      `${formatEventTime(event.timeSeconds)}, цикл ${getEventCycleNumber(event.timeSeconds)} (${formatRealEventTime(event.recordedAt)}) - ${event.title}: ${event.detail}`
     ))
     : ['События не записаны.']
 
@@ -884,6 +897,7 @@ export default function CprCoachPage() {
     const nextEvent: RecordedEvent = {
       detail,
       id: eventIdRef.current + 1,
+      recordedAt: Date.now(),
       timeSeconds: elapsedSeconds,
       title,
       type,
@@ -1521,7 +1535,11 @@ export default function CprCoachPage() {
             <ol className="app-cpr-coach-event-log">
               {events.slice(0, 12).map((event) => (
                 <li className={`app-cpr-coach-event-log__item app-cpr-coach-event-log__item--${event.type}`} key={event.id}>
-                  <time>{formatEventTime(event.timeSeconds)}</time>
+                  <time>
+                    <span>{formatEventTime(event.timeSeconds)}</span>
+                    <span>цикл {getEventCycleNumber(event.timeSeconds)}</span>
+                    <span>({formatRealEventTime(event.recordedAt)})</span>
+                  </time>
                   <span>
                     <strong>{event.title}</strong>
                     {event.detail}

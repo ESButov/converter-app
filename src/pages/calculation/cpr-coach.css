@@ -961,7 +961,7 @@
 
 .app-cpr-coach-event-log__item {
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-columns: 68px minmax(0, 1fr);
   gap: 8px;
   padding: 9px 10px;
   border-radius: 12px;
@@ -970,13 +970,15 @@
 }
 
 .app-cpr-coach-event-log__item time {
+  display: grid;
+  gap: 1px;
   color: var(--app-home-accent-strong);
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 900;
-  line-height: 1.2;
+  line-height: 1.08;
 }
 
-.app-cpr-coach-event-log__item span {
+.app-cpr-coach-event-log__item > span {
   min-width: 0;
   display: grid;
   gap: 2px;
