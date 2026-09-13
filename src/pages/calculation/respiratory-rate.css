@@ -1,0 +1,222 @@
+.app-respiratory-rate-screen {
+  gap: 14px;
+}
+
+.app-respiratory-rate-scroll {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding: 2px 2px 28px;
+  scroll-padding-bottom: 28px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(47, 200, 196, 0.55) transparent;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.app-respiratory-rate-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.app-respiratory-rate-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(47, 200, 196, 0.55);
+}
+
+.app-respiratory-rate-duration,
+.app-respiratory-rate-result {
+  flex: 0 0 auto;
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 16px;
+  background: var(--app-home-card);
+  box-shadow: var(--app-home-card-shadow);
+}
+
+.app-respiratory-rate-duration {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  color: var(--app-home-text);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.app-respiratory-rate-duration__buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.app-respiratory-rate-duration__button {
+  min-width: 0;
+  height: 38px;
+  padding: 0 6px;
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 12px;
+  background: var(--app-home-field-bg);
+  color: var(--app-home-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1;
+  text-align: center;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.app-respiratory-rate-duration__button:hover,
+.app-respiratory-rate-duration__button:focus-visible,
+.app-respiratory-rate-duration__button[aria-pressed="true"] {
+  border-color: rgba(10, 166, 162, 0.72);
+  background: rgba(47, 200, 196, 0.16);
+  color: var(--app-home-accent-strong);
+}
+
+.app-respiratory-rate-duration__button:focus-visible {
+  outline: 3px solid var(--app-home-focus-ring);
+  outline-offset: 2px;
+}
+
+.app-respiratory-rate-duration__button:disabled {
+  background: var(--app-home-field-disabled-bg);
+  color: var(--app-home-field-disabled-text);
+  cursor: not-allowed;
+}
+
+.app-respiratory-rate-counter {
+  flex: 0 0 auto;
+  display: grid;
+  justify-items: center;
+  padding: 12px 0 8px;
+}
+
+.app-respiratory-rate-circle {
+  --respiratory-rate-progress: 0deg;
+
+  position: relative;
+  width: min(252px, 78vw);
+  aspect-ratio: 1;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  place-items: center;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(47, 200, 196, 0.54);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, var(--app-home-card) 0 58%, transparent 59%),
+    conic-gradient(
+      var(--app-home-accent) var(--respiratory-rate-progress),
+      rgba(47, 200, 196, 0.16) 0
+    );
+  box-shadow:
+    inset 0 0 0 13px rgba(255, 255, 255, 0.58),
+    0 18px 32px rgba(6, 43, 55, 0.16);
+  color: var(--app-home-text);
+  cursor: pointer;
+  font: inherit;
+  text-align: center;
+}
+
+.app-respiratory-rate-circle::before {
+  content: '';
+  position: absolute;
+  inset: 18px;
+  border: 1px solid rgba(47, 200, 196, 0.36);
+  border-radius: 50%;
+  background: var(--app-home-card-soft);
+  box-shadow: inset 0 0 24px rgba(47, 200, 196, 0.12);
+}
+
+.app-respiratory-rate-circle:hover,
+.app-respiratory-rate-circle:focus-visible {
+  border-color: rgba(10, 166, 162, 0.82);
+}
+
+.app-respiratory-rate-circle:disabled {
+  cursor: default;
+}
+
+.app-respiratory-rate-circle:focus-visible {
+  outline: 4px solid var(--app-home-focus-ring);
+  outline-offset: 3px;
+}
+
+.app-respiratory-rate-circle__action,
+.app-respiratory-rate-circle__count,
+.app-respiratory-rate-circle__timer {
+  position: relative;
+  z-index: 1;
+  display: block;
+}
+
+.app-respiratory-rate-circle__timer {
+  margin-top: 6px;
+  color: var(--app-home-text);
+  font-size: 42px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.app-respiratory-rate-circle__action {
+  margin-top: 11px;
+  color: var(--app-home-accent-strong);
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.app-respiratory-rate-circle__count {
+  margin-top: 13px;
+  color: var(--app-home-muted);
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.app-respiratory-rate-result {
+  padding: 14px;
+  color: var(--app-home-text);
+  font-size: 13px;
+  font-weight: 830;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+.app-respiratory-rate-reset {
+  flex: 0 0 auto;
+  min-height: 40px;
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 14px;
+  background: var(--app-home-card-inner);
+  color: var(--app-home-accent-strong);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.app-respiratory-rate-reset:hover,
+.app-respiratory-rate-reset:focus-visible {
+  background: var(--app-home-card-hover);
+  color: var(--app-home-text);
+}
+
+.app-respiratory-rate-reset:focus-visible {
+  outline: 3px solid var(--app-home-focus-ring);
+  outline-offset: 2px;
+}
+
+:root[data-theme="dark"] .app-respiratory-rate-circle {
+  box-shadow:
+    inset 0 0 0 13px rgba(11, 20, 18, 0.72),
+    0 18px 32px rgba(0, 0, 0, 0.34);
+}

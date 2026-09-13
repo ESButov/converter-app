@@ -175,6 +175,16 @@ describe('App routes', () => {
     expect(screen.getByRole('heading', { name: 'Расчет препаратов для СЛР' })).toBeTruthy()
   })
 
+  it('renders respiratory rate counter page by /calculation/respiratory-rate route', () => {
+    render(
+      <MemoryRouter initialEntries={['/calculation/respiratory-rate']}>
+        <App />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: 'Подсчет ЧДД' })).toBeTruthy()
+  })
+
   it('renders epidural nomogram calculator page by /calculation/epidural-nomogram route', () => {
     render(
       <MemoryRouter initialEntries={['/calculation/epidural-nomogram']}>

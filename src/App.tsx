@@ -20,6 +20,7 @@ import ConvertPage from './pages/calculation/convert'
 import PdrPage from './pages/calculation/pdr'
 import IpscalcPage from './pages/calculation/ipscalc'
 import ClrPage from './pages/calculation/clr'
+import RespiratoryRatePage from './pages/calculation/respiratory-rate'
 import CprCoachPage from './pages/calculation/cpr-coach'
 import { EpiduralNomogramPage } from './pages/calculation/epidural-nomogram'
 import ToxicologyReferencePage from './pages/reference/toxic'
@@ -70,6 +71,7 @@ function App() {
             <Route path='convert' element={<ConvertPage />} />
             <Route path='ipscalc' element={<IpscalcPage />} />
             <Route path='clr' element={<ClrPage />} />
+            <Route path='respiratory-rate' element={<RespiratoryRatePage />} />
             <Route path='epidural-nomogram' element={<EpiduralNomogramPage />} />
           </Route>
           <Route path="reference">

@@ -111,6 +111,10 @@ const calculatorGroups: CalculatorGroup[] = [
         name: 'Конвертер единиц измерения',
         to: '/calculation/convert',
       },
+      {
+        name: 'Подсчет ЧДД',
+        to: '/calculation/respiratory-rate',
+      },
     ],
   },
 ]
