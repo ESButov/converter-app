@@ -1,4 +1,7 @@
 .app-cpr-coach-screen {
+  --app-cpr-popover-bg: #f8fffd;
+  --app-cpr-popover-option-bg: #ffffff;
+  --app-cpr-popover-option-active-bg: #def8f5;
   gap: 14px;
 }
 
@@ -60,7 +63,8 @@
   z-index: 4;
 }
 
-.app-cpr-coach-custom-audio {
+.app-cpr-coach-rhythm-audio,
+.app-cpr-coach-breath-audio {
   display: none;
 }
 
@@ -518,6 +522,7 @@
   position: absolute;
   top: 44px;
   right: 0;
+  z-index: 10;
   width: min(320px, calc(100vw - 76px));
   max-height: min(72vh, 560px);
   display: grid;
@@ -525,7 +530,8 @@
   padding: 12px;
   border: 1px solid var(--app-home-card-border);
   border-radius: 16px;
-  background: var(--app-home-card);
+  background: var(--app-cpr-popover-bg);
+  background-clip: padding-box;
   box-shadow: 0 18px 34px rgba(6, 43, 55, 0.18);
   box-sizing: border-box;
   color: var(--app-home-text);
@@ -551,7 +557,7 @@
   padding: 9px 10px;
   border: 1px solid var(--app-home-card-border);
   border-radius: 12px;
-  background: var(--app-home-card-inner);
+  background: var(--app-cpr-popover-option-bg);
   color: var(--app-home-text);
   font: inherit;
   text-align: left;
@@ -576,7 +582,7 @@
 
 .app-cpr-coach-sound-option[aria-pressed="true"] {
   border-color: rgba(10, 166, 162, 0.68);
-  background: rgba(47, 200, 196, 0.14);
+  background: var(--app-cpr-popover-option-active-bg);
 }
 
 .app-cpr-coach-sound-option span {
@@ -646,6 +652,63 @@
   line-height: 1.28;
 }
 
+.app-cpr-coach-voice-settings {
+  display: grid;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.app-cpr-coach-voice-settings > strong {
+  color: var(--app-home-text);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.app-cpr-coach-voice-settings__options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.app-cpr-coach-voice-option {
+  min-width: 0;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--app-home-card-border);
+  border-radius: 12px;
+  background: var(--app-cpr-popover-option-bg);
+  color: var(--app-home-text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.app-cpr-coach-voice-option:hover,
+.app-cpr-coach-voice-option:focus-visible {
+  border-color: rgba(10, 166, 162, 0.72);
+  transform: translateY(-1px);
+}
+
+.app-cpr-coach-voice-option:focus-visible {
+  outline: 3px solid var(--app-home-focus-ring);
+  outline-offset: 2px;
+}
+
+.app-cpr-coach-voice-option[aria-pressed="true"] {
+  border-color: rgba(10, 166, 162, 0.68);
+  background: var(--app-cpr-popover-option-active-bg);
+  color: var(--app-home-accent-strong);
+}
+
 .app-cpr-coach-display-settings {
   display: grid;
   gap: 8px;
@@ -673,7 +736,7 @@
   padding: 8px 9px;
   border: 1px solid var(--app-home-card-border);
   border-radius: 12px;
-  background: var(--app-home-card-inner);
+  background: var(--app-cpr-popover-option-bg);
   box-sizing: border-box;
   color: var(--app-home-text);
   cursor: pointer;
@@ -1008,6 +1071,12 @@
 
 :root[data-theme="dark"] .app-cpr-coach-timer-button--primary {
   color: #05211f;
+}
+
+:root[data-theme="dark"] .app-cpr-coach-screen {
+  --app-cpr-popover-bg: #10201c;
+  --app-cpr-popover-option-bg: #172b26;
+  --app-cpr-popover-option-active-bg: #214139;
 }
 
 :root[data-theme="dark"] .app-cpr-coach-sound-settings {

@@ -13,6 +13,7 @@ type CoachSpecies = Extract<ClrSpecies, 'cat' | 'dog'>
 type EventType = 'drug' | 'rhythm' | 'shock' | 'gas' | 'system'
 
 type RecordedEvent = {
+  cycleNumber: number
   detail: string
   id: number
   recordedAt: number
@@ -41,8 +42,8 @@ type AudioWindow = Window & typeof globalThis & {
 }
 
 type SoundMode = 'metronome' | 'melody-1' | 'melody-2' | 'melody-3' | 'custom'
-type BuiltInSoundMode = Exclude<SoundMode, 'custom'>
 type VoicePromptId = 'start-compressions' | 'pulse-check' | 'new-cycle'
+type VoiceMode = 'female' | 'male'
 
 type ToneStep = {
   durationSeconds: number
@@ -76,24 +77,57 @@ const compressionSeconds = 120
 const pulseCheckSeconds = 10
 const defaultCompressionRatePerMinute = 110
 const ventilationRatePerMinute = 10
+const breathPromptSrc = '/audio/cpr-coach/breath-short.wav'
+const rhythmAudioVolume = 0.36
 const customTrackRatePattern = /^\d{0,3}$/
 const cprDisplaySettingsStorageKey = 'vettools-cpr-coach-display-settings-v1'
+const cprVoiceModeStorageKey = 'vettools-cpr-coach-voice-mode-v1'
 const cprDrugIds = clrDrugDefinitions.map((drug) => drug.id)
 
-const voicePrompts: Record<VoicePromptId, { src: string; fallbackText: string }> = {
-  'new-cycle': {
-    fallbackText: 'Начать компрессии. Новый цикл.',
-    src: '/audio/cpr-coach/new-cycle.wav',
+const voicePromptSources: Record<VoiceMode, Record<VoicePromptId, { src: string; fallbackText: string }>> = {
+  female: {
+    'new-cycle': {
+      fallbackText: 'Начать компрессии. Новый цикл.',
+      src: '/audio/cpr-coach/voice/female/new-cycle.mp3',
+    },
+    'pulse-check': {
+      fallbackText: 'Проверка пульса. Десять секунд.',
+      src: '/audio/cpr-coach/voice/female/pulse-check.mp3',
+    },
+    'start-compressions': {
+      fallbackText: 'Начать компрессии.',
+      src: '/audio/cpr-coach/voice/female/start-compressions.mp3',
+    },
   },
-  'pulse-check': {
-    fallbackText: 'Проверка пульса. Десять секунд.',
-    src: '/audio/cpr-coach/pulse-check.wav',
-  },
-  'start-compressions': {
-    fallbackText: 'Начать компрессии.',
-    src: '/audio/cpr-coach/start-compressions.wav',
+  male: {
+    'new-cycle': {
+      fallbackText: 'Начать компрессии. Новый цикл.',
+      src: '/audio/cpr-coach/voice/male/new-cycle.mp3',
+    },
+    'pulse-check': {
+      fallbackText: 'Проверка пульса. Десять секунд.',
+      src: '/audio/cpr-coach/voice/male/pulse-check.mp3',
+    },
+    'start-compressions': {
+      fallbackText: 'Начать компрессии.',
+      src: '/audio/cpr-coach/voice/male/start-compressions.mp3',
+    },
   },
 }
+
+const voiceModeOptions: readonly {
+  id: VoiceMode
+  label: string
+}[] = [
+  {
+    id: 'female',
+    label: 'Женский',
+  },
+  {
+    id: 'male',
+    label: 'Мужской',
+  },
+]
 
 const speciesOptions: readonly {
   label: string
@@ -111,6 +145,7 @@ const speciesOptions: readonly {
 
 // У каждого аудиотрека должен быть свой темп, чтобы частота компрессий совпадала со звуком.
 const soundModeOptions: readonly {
+  audioSrc?: string
   id: SoundMode
   label: string
   note: string
@@ -119,85 +154,45 @@ const soundModeOptions: readonly {
   {
     id: 'metronome',
     label: 'Метроном',
-    note: 'Короткий сигнал для компрессий.',
+    note: 'Ритм: 110 компрессий/мин.',
     ratePerMinute: defaultCompressionRatePerMinute,
   },
   {
+    audioSrc: '/audio/cpr-coach/bee-gees-stayin-alive.mp3',
     id: 'melody-1',
-    label: 'Мелодия 1',
-    note: 'Мягкий двойной акцент.',
-    ratePerMinute: defaultCompressionRatePerMinute,
+    label: 'Bee Gees - Stayin\' Alive',
+    note: 'Ритм: 104 компрессии/мин.',
+    ratePerMinute: 104,
   },
   {
+    audioSrc: '/audio/cpr-coach/opyt-yunga-zhivi.mp3',
     id: 'melody-2',
-    label: 'Мелодия 2',
-    note: 'Более четкий высокий акцент.',
-    ratePerMinute: defaultCompressionRatePerMinute,
+    label: 'Опыт Юнга - Живи',
+    note: 'Ритм: 100 компрессий/мин.',
+    ratePerMinute: 100,
   },
   {
+    audioSrc: '/audio/cpr-coach/muse-supermassive-black-hole.mp3',
     id: 'melody-3',
-    label: 'Мелодия 3',
-    note: 'Низкий плотный акцент.',
-    ratePerMinute: defaultCompressionRatePerMinute,
+    label: 'Muse - Supermassive Black Hole',
+    note: 'Ритм: 120 компрессий/мин.',
+    ratePerMinute: 120,
   },
   {
     id: 'custom',
     label: 'Свой трек',
-    note: 'Файл с выбранным темпом компрессий.',
+    note: 'Ритм: задается вручную.',
     ratePerMinute: defaultCompressionRatePerMinute,
   },
 ]
 
-const soundModeTonePatterns: Record<BuiltInSoundMode, readonly ToneStep[]> = {
-  metronome: [
-    {
-      durationSeconds: 0.04,
-      frequency: 880,
-      gainValue: 0.06,
-    },
-  ],
-  'melody-1': [
-    {
-      durationSeconds: 0.07,
-      frequency: 740,
-      gainValue: 0.05,
-    },
-    {
-      durationSeconds: 0.07,
-      frequency: 988,
-      gainValue: 0.045,
-    },
-  ],
-  'melody-2': [
-    {
-      durationSeconds: 0.05,
-      frequency: 659,
-      gainValue: 0.05,
-    },
-    {
-      durationSeconds: 0.05,
-      frequency: 659,
-      gainValue: 0.04,
-    },
-    {
-      durationSeconds: 0.08,
-      frequency: 1047,
-      gainValue: 0.045,
-    },
-  ],
-  'melody-3': [
-    {
-      durationSeconds: 0.08,
-      frequency: 523,
-      gainValue: 0.055,
-    },
-    {
-      durationSeconds: 0.08,
-      frequency: 784,
-      gainValue: 0.045,
-    },
-  ],
-}
+const metronomeTonePattern: readonly ToneStep[] = [
+  {
+    durationSeconds: 0.04,
+    frequency: 880,
+    gainValue: 0.06,
+  },
+]
 
 const rhythmOptions: readonly RhythmOption[] = [
   {
@@ -269,10 +264,6 @@ const formatEventTime = (seconds: number) => {
 
   return `${minutes}:${String(restSeconds).padStart(2, '0')}`
 }
-
-const getEventCycleNumber = (seconds: number) => (
-  Math.floor(seconds / sequenceSeconds) + 1
-)
 
 const formatRealEventTime = (timestamp: number) => (
   new Intl.DateTimeFormat('ru-RU', {
@@ -407,6 +398,15 @@ const playTonePattern = (
   })
 }
 
+const stopMediaElement = (audio: HTMLAudioElement | null) => {
+  if (audio === null) {
+    return
+  }
+
+  audio.pause()
+  audio.currentTime = 0
+}
+
 const getDrugDilutionLabel = (drug: ClrDrugCalculation) => (
   drug.dilutionLabel ?? drug.specialDilutionLabel
 )
@@ -416,20 +416,7 @@ const getDrugPrimaryVolumeLabel = (drug: ClrDrugCalculation) => (
 )
 
 const buildDrugEventDetail = (drug: ClrDrugCalculation) => {
-  const dilutionLabel = getDrugDilutionLabel(drug)
-  const hasDilutionPrimary = drug.isAvailableForSpecies && dilutionLabel !== undefined
-  const details = [
-    dilutionLabel,
-    hasDilutionPrimary
-      ? `Объем из разведения: ${getDrugPrimaryVolumeLabel(drug)}`
-      : `Объем: ${drug.volumeLabel}`,
-    drug.intratrachealLabel,
-    hasDilutionPrimary ? undefined : `Доза: ${drug.amountLabel}`,
-    `${drug.definition.doseLabel} - ${drug.definition.concentrationLabel}`,
-    drug.definition.route,
-  ].filter((detail): detail is string => detail !== undefined && detail !== '')
-
-  return `${details.join('; ')}.`
+  return `Дозировка: ${drug.definition.doseLabel}. Введенная доза: ${drug.amountLabel}.`
 }
 
 const buildRhythmEventDetail = (rhythm: RhythmOption, shockEnergyLabel: string) => {
@@ -482,13 +469,27 @@ const readDisplaySettings = () => {
   }
 }
 
+const isVoiceMode = (value: string | null): value is VoiceMode => (
+  value === 'female' || value === 'male'
+)
+
+const readVoiceMode = () => {
+  if (typeof window === 'undefined') {
+    return 'female'
+  }
+
+  const storedVoiceMode = window.localStorage.getItem(cprVoiceModeStorageKey)
+
+  return isVoiceMode(storedVoiceMode) ? storedVoiceMode : 'female'
+}
+
 const buildCprProtocolEmail = (data: CprProtocolData): CprProtocolPayload => {
   const chronologicalEvents = [...data.events].sort((firstEvent, secondEvent) => (
     firstEvent.timeSeconds - secondEvent.timeSeconds
   ))
   const eventLines = chronologicalEvents.length > 0
     ? chronologicalEvents.map((event) => (
-      `${formatEventTime(event.timeSeconds)}, цикл ${getEventCycleNumber(event.timeSeconds)} (${formatRealEventTime(event.recordedAt)}) - ${event.title}: ${event.detail}`
+      `${formatEventTime(event.timeSeconds)}, цикл ${event.cycleNumber} (${formatRealEventTime(event.recordedAt)}) - ${event.title}: ${event.detail}`
     ))
     : ['События не записаны.']
 
@@ -632,9 +633,12 @@ export default function CprCoachPage() {
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(false)
   const [isSoundSettingsOpen, setIsSoundSettingsOpen] = useState(false)
   const [soundMode, setSoundMode] = useState<SoundMode>('metronome')
+  const [voiceMode, setVoiceMode] = useState<VoiceMode>(readVoiceMode)
   const [customTrackName, setCustomTrackName] = useState('')
   const [customTrackRateInput, setCustomTrackRateInput] = useState('110')
   const [customTrackUrl, setCustomTrackUrl] = useState<string>()
+  const [cycleBaseNumber, setCycleBaseNumber] = useState(1)
+  const [cycleStartElapsedSeconds, setCycleStartElapsedSeconds] = useState(0)
   const [protocolStatus, setProtocolStatus] = useState('')
   const [lastRhythmId, setLastRhythmId] = useState<string>()
   const [activeQualityPanel, setActiveQualityPanel] = useState<QualityPanel>()
@@ -644,7 +648,8 @@ export default function CprCoachPage() {
   const [events, setEvents] = useState<RecordedEvent[]>([])
   const eventIdRef = useRef(0)
   const audioContextRef = useRef<AudioContext | null>(null)
-  const customAudioRef = useRef<HTMLAudioElement | null>(null)
+  const rhythmAudioRef = useRef<HTMLAudioElement | null>(null)
+  const breathAudioRef = useRef<HTMLAudioElement | null>(null)
   const voiceAudioRef = useRef<HTMLAudioElement | null>(null)
   const previousPhaseRef = useRef<'compressions' | 'pulse-check'>('compressions')
   const soundSettingsRef = useRef<HTMLDivElement | null>(null)
@@ -670,8 +675,10 @@ export default function CprCoachPage() {
   const activeCompressionRatePerMinute = soundMode === 'custom' && customTrackRate !== undefined
     ? Math.max(1, Math.round(customTrackRate))
     : selectedSoundMode?.ratePerMinute ?? defaultCompressionRatePerMinute
+  const rhythmAudioSrc = soundMode === 'custom' ? customTrackUrl : selectedSoundMode?.audioSrc
 
-  const sequencePositionSeconds = elapsedSeconds % sequenceSeconds
+  const cycleElapsedSeconds = Math.max(0, elapsedSeconds - cycleStartElapsedSeconds)
+  const sequencePositionSeconds = cycleElapsedSeconds % sequenceSeconds
   const phase = sequencePositionSeconds < compressionSeconds ? 'compressions' : 'pulse-check'
   const phaseElapsedSeconds = sequencePositionSeconds
   const phaseRemainingSeconds = phase === 'compressions'
@@ -680,7 +687,7 @@ export default function CprCoachPage() {
   const circleProgress = phase === 'compressions'
     ? phaseElapsedSeconds / compressionSeconds
     : getPulseCheckProgress(phaseElapsedSeconds)
-  const cycleNumber = Math.floor(elapsedSeconds / sequenceSeconds) + 1
+  const cycleNumber = cycleBaseNumber + Math.floor(cycleElapsedSeconds / sequenceSeconds)
   const shockEnergyLabel = getShockLabel(weightKg)
   const lastRhythm = rhythmOptions.find((rhythm) => rhythm.id === lastRhythmId)
   const activeEventCount = events.length
@@ -714,7 +721,7 @@ export default function CprCoachPage() {
       return
     }
 
-    const prompt = voicePrompts[promptId]
+    const prompt = voicePromptSources[voiceMode][promptId]
     voiceAudioRef.current?.pause()
     window.speechSynthesis?.cancel()
 
@@ -724,7 +731,38 @@ export default function CprCoachPage() {
     void audio.play().catch(() => {
       speakFallbackPrompt(prompt.fallbackText)
     })
-  }, [isVoiceEnabled])
+  }, [isVoiceEnabled, voiceMode])
+
+  const stopTransientAudio = useCallback(() => {
+    stopMediaElement(rhythmAudioRef.current)
+    stopMediaElement(breathAudioRef.current)
+    stopMediaElement(voiceAudioRef.current)
+    window.speechSynthesis?.cancel()
+  }, [])
+
+  const stopAllAudioPlayback = useCallback(() => {
+    stopTransientAudio()
+
+    const audioContext = audioContextRef.current
+
+    if (audioContext !== null && audioContext.state !== 'closed') {
+      void audioContext.close().catch(() => undefined)
+      audioContextRef.current = null
+    }
+  }, [stopTransientAudio])
+
+  useEffect(() => {
+    const handlePageHide = () => {
+      stopAllAudioPlayback()
+    }
+
+    window.addEventListener('pagehide', handlePageHide)
+
+    return () => {
+      window.removeEventListener('pagehide', handlePageHide)
+      stopAllAudioPlayback()
+    }
+  }, [stopAllAudioPlayback])
 
   useEffect(() => {
     if (!isRunning) {
@@ -791,6 +829,18 @@ export default function CprCoachPage() {
     }
   }, [displaySettings])
 
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(cprVoiceModeStorageKey, voiceMode)
+    } catch {
+      // Настройки не критичны: при недоступном хранилище ассистент продолжит работать.
+    }
+  }, [voiceMode])
+
+  useEffect(() => {
+    stopMediaElement(voiceAudioRef.current)
+  }, [voiceMode])
+
   useEffect(() => () => {
     if (customTrackUrl !== undefined) {
       URL.revokeObjectURL(customTrackUrl)
@@ -798,13 +848,9 @@ export default function CprCoachPage() {
   }, [customTrackUrl])
 
   useEffect(() => {
-    const audio = customAudioRef.current
+    const audio = rhythmAudioRef.current
 
-    if (audio === null) {
-      return undefined
-    }
-
-    if (soundMode !== 'custom' || customTrackUrl === undefined) {
+    if (audio === null || rhythmAudioSrc === undefined) {
       return undefined
     }
 
@@ -815,26 +861,26 @@ export default function CprCoachPage() {
     }
 
     audio.loop = true
+    audio.volume = rhythmAudioVolume
     void audio.play().catch(() => undefined)
 
     return () => {
       audio.pause()
       audio.currentTime = 0
     }
-  }, [customTrackUrl, isMetronomeEnabled, isRunning, phase, soundMode])
+  }, [isMetronomeEnabled, isRunning, phase, rhythmAudioSrc])
 
   useEffect(() => {
-    if (!isRunning || !isMetronomeEnabled || phase !== 'compressions' || soundMode === 'custom') {
+    if (!isRunning || !isMetronomeEnabled || phase !== 'compressions' || soundMode !== 'metronome') {
       return undefined
     }
 
     const intervalMs = Math.round(60_000 / activeCompressionRatePerMinute)
-    const pattern = soundModeTonePatterns[soundMode]
 
-    playTonePattern(audioContextRef.current, pattern)
+    playTonePattern(audioContextRef.current, metronomeTonePattern)
 
     const intervalId = window.setInterval(() => {
-      playTonePattern(audioContextRef.current, pattern)
+      playTonePattern(audioContextRef.current, metronomeTonePattern)
     }, intervalMs)
 
     return () => window.clearInterval(intervalId)
@@ -846,12 +892,28 @@ export default function CprCoachPage() {
     }
 
     const intervalMs = Math.round(60_000 / ventilationRatePerMinute)
+    const breathAudio = breathAudioRef.current
 
-    const intervalId = window.setInterval(() => {
-      playTone(audioContextRef.current, 440, 0.14, 0.08)
-    }, intervalMs)
+    const playBreathPrompt = () => {
+      if (breathAudio === null) {
+        return
+      }
 
-    return () => window.clearInterval(intervalId)
+      breathAudio.currentTime = 0
+      breathAudio.volume = 1
+      void breathAudio.play().catch(() => undefined)
+    }
+
+    const intervalId = window.setInterval(playBreathPrompt, intervalMs)
+
+    return () => {
+      window.clearInterval(intervalId)
+
+      if (breathAudio !== null) {
+        breathAudio.pause()
+        breathAudio.currentTime = 0
+      }
+    }
   }, [isBreathEnabled, isRunning, phase])
 
   useEffect(() => {
@@ -883,30 +945,25 @@ export default function CprCoachPage() {
     }
   }
 
-  const playCustomTrack = () => {
-    const audio = customAudioRef.current
+  const playRhythmAudio = (restart = false) => {
+    const audio = rhythmAudioRef.current
 
-    if (audio === null || customTrackUrl === undefined) {
+    if (audio === null || rhythmAudioSrc === undefined) {
       return
+    }
+
+    if (restart) {
+      audio.currentTime = 0
     }
 
     audio.loop = true
+    audio.volume = rhythmAudioVolume
     void audio.play().catch(() => undefined)
-  }
-
-  const stopCustomTrack = () => {
-    const audio = customAudioRef.current
-
-    if (audio === null) {
-      return
-    }
-
-    audio.pause()
-    audio.currentTime = 0
   }
 
   const addEvent = (title: string, detail: string, type: EventType, recordedAt: number) => {
     const nextEvent: RecordedEvent = {
+      cycleNumber,
       detail,
       id: eventIdRef.current + 1,
       recordedAt,
@@ -936,18 +993,20 @@ export default function CprCoachPage() {
     if (nextIsRunning) {
       playVoicePrompt('start-compressions')
 
-      if (isMetronomeEnabled && soundMode === 'custom' && phase === 'compressions') {
-        playCustomTrack()
+      if (isMetronomeEnabled && soundMode !== 'metronome' && phase === 'compressions') {
+        playRhythmAudio(true)
       }
     } else {
-      stopCustomTrack()
+      stopTransientAudio()
     }
   }
 
   const handleReset = (event: MouseEvent<HTMLButtonElement>) => {
     setElapsedSeconds(0)
+    setCycleBaseNumber(1)
+    setCycleStartElapsedSeconds(0)
     setIsRunning(false)
-    stopCustomTrack()
+    stopTransientAudio()
     previousPhaseRef.current = 'compressions'
     addEvent(
       'СЛР сброшена',
@@ -1045,12 +1104,31 @@ export default function CprCoachPage() {
   }
 
   const handleShockRecord = (event: MouseEvent<HTMLButtonElement>) => {
+    ensureAudioContext()
+
+    const recordedAt = getRecordedAtFromInteraction(event)
+    const nextCycleNumber = cycleNumber + 1
+    const shockEventDoseLabel = shockEnergyLabel.replace(/\.$/, '')
+
     addEvent(
       'Дефибрилляция',
-      `Разряд: ${shockEnergyLabel}. После разряда продолжить компрессии 2 минуты.`,
+      `Разряд: ${shockEventDoseLabel}. После разряда сразу начать новый двухминутный цикл компрессий без повторной оценки ритма.`,
       'shock',
-      getRecordedAtFromInteraction(event),
+      recordedAt,
     )
+    setCycleStartElapsedSeconds(elapsedSeconds)
+    setCycleBaseNumber(nextCycleNumber)
+    setCompressionTapTimestamps([])
+    setBreathingTapTimestamps([])
+    setActiveQualityPanel(undefined)
+    setIsRunning(true)
+    previousPhaseRef.current = 'compressions'
+    stopTransientAudio()
+    playVoicePrompt('new-cycle')
+
+    if (isMetronomeEnabled && soundMode !== 'metronome') {
+      playRhythmAudio(true)
+    }
   }
 
   const handleCarbonDioxideRecord = (event: MouseEvent<HTMLButtonElement>) => {
@@ -1141,10 +1219,17 @@ export default function CprCoachPage() {
         <section className="app-cpr-coach-timer-card" aria-label="Таймер СЛР">
           <audio
             aria-hidden="true"
-            className="app-cpr-coach-custom-audio"
+            className="app-cpr-coach-rhythm-audio"
             preload="auto"
-            ref={customAudioRef}
-            src={customTrackUrl}
+            ref={rhythmAudioRef}
+            src={rhythmAudioSrc}
+          />
+          <audio
+            aria-hidden="true"
+            className="app-cpr-coach-breath-audio"
+            preload="auto"
+            ref={breathAudioRef}
+            src={breathPromptSrc}
           />
           <div className="app-cpr-coach-sound-rail" aria-label="Звуковые подсказки">
             <button
@@ -1248,6 +1333,22 @@ export default function CprCoachPage() {
                     </p>
                   </div>
                 ) : null}
+                <div className="app-cpr-coach-voice-settings">
+                  <strong>Голос подсказок</strong>
+                  <div className="app-cpr-coach-voice-settings__options">
+                    {voiceModeOptions.map((option) => (
+                      <button
+                        aria-pressed={voiceMode === option.id}
+                        className="app-cpr-coach-voice-option"
+                        key={option.id}
+                        type="button"
+                        onClick={() => setVoiceMode(option.id)}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <div className="app-cpr-coach-display-settings">
                   <strong>Отображать</strong>
                   <label className="app-cpr-coach-check-option">
@@ -1574,7 +1675,7 @@ export default function CprCoachPage() {
                 <li className={`app-cpr-coach-event-log__item app-cpr-coach-event-log__item--${event.type}`} key={event.id}>
                   <time>
                     <span>{formatEventTime(event.timeSeconds)}</span>
-                    <span>цикл {getEventCycleNumber(event.timeSeconds)}</span>
+                    <span>цикл {event.cycleNumber}</span>
                     <span>({formatRealEventTime(event.recordedAt)})</span>
                   </time>
                   <span>

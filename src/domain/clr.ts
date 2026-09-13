@@ -108,8 +108,8 @@ export const clrDrugDefinitions: readonly ClrDrugDefinition[] = [
   {
     id: 'atropine',
     label: 'Атропин',
-    concentration: 0.5,
-    concentrationLabel: '0.5 мг/мл',
+    concentration: 1,
+    concentrationLabel: '1 мг/мл',
     concentrationUnit: 'mg/ml',
     doseLabel: '0.04-0.054 мг/кг',
     doseRange: {
@@ -330,7 +330,7 @@ const getExoticAtropineDilutionLabel = (
     return undefined
   }
 
-  return `Разведение: 0.1 мл атропина 0.5 мг/мл + 9.9 мл 0.9% NaCl`
+  return `Разведение: 0.1 мл атропина 1 мг/мл + 9.9 мл 0.9% NaCl`
 }
 
 const getSpecialDilutionLabel = (
